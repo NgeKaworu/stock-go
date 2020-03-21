@@ -1,0 +1,4 @@
+- [ ] json marshal unmarshal
+- [ ] db init
+- [ ] db insert
+- [ ] batch processing
