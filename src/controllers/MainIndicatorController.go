@@ -25,12 +25,16 @@ func FetchMainIndicator() {
 	res, err := client.Do(req)
 
 	body, err := ioutil.ReadAll(res.Body)
-
 	defer res.Body.Close()
+
+	var result models.MainIndicatorRes
+
+	err = json.Unmarshal(body, &result)
 
 	if err != nil {
 		log.Println(err.Error())
 	}
 
-	log.Println(string(body))
+	log.Println(result)
+
 }

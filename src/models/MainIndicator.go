@@ -15,7 +15,7 @@ type MainIndicatorRes struct {
 
 // Result 主要指标返回值
 type Result struct {
-	Enterprise Enterprise `json:"ZhuYaoZhiBiaoList_QiYe"`
+	Enterprise []Enterprise `json:"ZhuYaoZhiBiaoList_QiYe"`
 	// YinHang   YinHang   `json:"ZhuYaoZhiBiaoList_YinHang"`
 	// QuanShang QuanShang `json:"ZhuYaoZhiBiaoList_QuanShang"`
 	// BaoXian   BaoXian   `json:"ZhuYaoZhiBiaoList_BaoXian"`
