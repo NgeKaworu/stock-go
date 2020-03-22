@@ -2,16 +2,19 @@ package controllers
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"stock/src/models"
+
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // FetchMainIndicator 获取主要指标
-func FetchMainIndicator() {
-	curIndicator := &models.MainIndicatorReq{"60001901", "4", 5, 0}
+func (d *DbEngine) FetchMainIndicator() {
+	curIndicator := &models.MainIndicatorReq{Fc: "60001901", CorpType: "4", LatestCount: 5, ReportDateType: 0}
 
 	reqBody, err := json.Marshal(curIndicator)
 
@@ -31,10 +34,18 @@ func FetchMainIndicator() {
 
 	err = json.Unmarshal(body, &result)
 
+	enterpriseList := result.Result.Enterprise
+
+	enterprise := d.GetColl(models.TEnterpriseIndicator)
+
+	bson.Marshal(enterpriseList)
+
+	ret, err := enterprise.InsertMany(context.Background())
+
 	if err != nil {
 		log.Println(err.Error())
 	}
 
-	log.Println(result)
+	log.Println(ret)
 
 }
