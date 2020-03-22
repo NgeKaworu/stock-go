@@ -3,5 +3,8 @@
 - [x] db insert
 - [x] batch processing
 - [ ] MainIndicatorRes 主要指标
+- [ ] 必读指标
 - [x] 上证50
 - [ ] 沪深300
+- [ ] 加权算法
+- [ ] 估值算法
