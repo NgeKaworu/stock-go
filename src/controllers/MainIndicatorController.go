@@ -8,13 +8,12 @@ import (
 	"log"
 	"net/http"
 	"stock/src/models"
-
-	"go.mongodb.org/mongo-driver/bson"
+	"time"
 )
 
 // FetchMainIndicator 获取主要指标
-func (d *DbEngine) FetchMainIndicator() {
-	curIndicator := &models.MainIndicatorReq{Fc: "60001901", CorpType: "4", LatestCount: 5, ReportDateType: 0}
+func (d *DbEngine) FetchMainIndicator(code string) {
+	curIndicator := &models.MainIndicatorReq{Fc: code + "01", CorpType: "4", LatestCount: 5, ReportDateType: 0}
 
 	reqBody, err := json.Marshal(curIndicator)
 
@@ -38,9 +37,16 @@ func (d *DbEngine) FetchMainIndicator() {
 
 	enterprise := d.GetColl(models.TEnterpriseIndicator)
 
-	bson.Marshal(enterpriseList)
+	var enterpriseListTemp []interface{}
 
-	ret, err := enterprise.InsertMany(context.Background())
+	for _, v := range enterpriseList {
+		createDate := time.Now().Local()
+		v.CreateDate = createDate
+		v.Code = code
+		enterpriseListTemp = append(enterpriseListTemp, v)
+	}
+
+	ret, err := enterprise.InsertMany(context.Background(), enterpriseListTemp)
 
 	if err != nil {
 		log.Println(err.Error())

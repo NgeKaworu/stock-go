@@ -1,4 +1,7 @@
-- [ ] json marshal unmarshal
-- [ ] db init
-- [ ] db insert
-- [ ] batch processing
+- [x] json marshal unmarshal
+- [x] db init
+- [x] db insert
+- [x] batch processing
+- [ ] MainIndicatorRes 主要指标
+- [x] 上证50
+- [ ] 沪深300

@@ -4,6 +4,7 @@ import (
 	"flag"
 	"log"
 	"os"
+	"stock/src/constants"
 	"stock/src/controllers"
 )
 
@@ -25,6 +26,8 @@ func main() {
 		log.Println(err.Error())
 	}
 
-	eng.FetchMainIndicator()
+	for _, v := range constants.Ss50 {
+		eng.FetchMainIndicator(v)
+	}
 
 }
