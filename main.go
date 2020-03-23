@@ -27,7 +27,8 @@ func main() {
 		log.Println(err.Error())
 	}
 
-	log.Println(len(utils.Merge(constants.Ss50, constants.Hs300)))
+	stocks := utils.Merge(constants.Ss50, constants.Hs300)
+	log.Println(stocks)
 	// for k, v := range constants.Ss50 {
 	// 	log.Println(k, v)
 	// 	// eng.FetchMainIndicator(v)
