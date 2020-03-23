@@ -6,6 +6,7 @@ import (
 	"os"
 	"stock/src/constants"
 	"stock/src/controllers"
+	"stock/src/utils"
 )
 
 func main() {
@@ -26,8 +27,10 @@ func main() {
 		log.Println(err.Error())
 	}
 
-	for _, v := range constants.Ss50 {
-		eng.FetchMainIndicator(v)
-	}
+	log.Println(len(utils.Merge(constants.Ss50, constants.Hs300)))
+	// for k, v := range constants.Ss50 {
+	// 	log.Println(k, v)
+	// 	// eng.FetchMainIndicator(v)
+	// }
 
 }

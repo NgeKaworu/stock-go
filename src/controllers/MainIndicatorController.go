@@ -12,8 +12,8 @@ import (
 )
 
 // FetchMainIndicator 获取主要指标
-func (d *DbEngine) FetchMainIndicator(code string) {
-	curIndicator := &models.MainIndicatorReq{Fc: code + "01", CorpType: "4", LatestCount: 5, ReportDateType: 0}
+func (d *DbEngine) FetchMainIndicator(code, bourse string) {
+	curIndicator := &models.MainIndicatorReq{Fc: code + bourse, CorpType: "4", LatestCount: 5, ReportDateType: 0}
 
 	reqBody, err := json.Marshal(curIndicator)
 
