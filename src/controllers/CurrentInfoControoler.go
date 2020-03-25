@@ -10,6 +10,8 @@ import (
 // FetchCurrentInfo 获取当前值
 // func (d *DbEngine) FetchCurrentInfo(code, bourse string) {
 func (d *DbEngine) FetchCurrentInfo() {
+
+	// https://emh5.eastmoney.com/api/CaoPanBiDu/GetCaoPanBiDuPart2Get?fc=60000001&color=w
 	resp, err := http.Get("http://hq.sinajs.cn/list=sh600000")
 	if err != nil {
 		panic(err)
