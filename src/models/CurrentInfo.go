@@ -2,9 +2,11 @@ package models
 
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
+// TCurrentInfo 表名
+const TCurrentInfo = "tcurrent_info"
+
 // CurrentInfo 当前股票信息
 type CurrentInfo struct {
-	ID                    primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	TodayOpeningPrice     string             `json:"todayOpeningPrice,omitempty" bson:"today_opening_price,omitempty"`         //今日开盘价
 	YesterdayOpeningPrice string             `json:"yesterdayOpeningPrice,omitempty" bson:"yesterday_opening_price,omitempty"` //昨日收盘价
 	CurrentPrice          string             `json:"currentPrice,omitempty" bson:"current_price,omitempty"`                    //当前价格
@@ -36,4 +38,40 @@ type CurrentInfo struct {
 	Sell5Price            string             `json:"sell5Price,omitempty" bson:"sell_5_price,omitempty"`                       //卖5报价
 	Date                  string             `json:"date,omitempty" bson:"date,omitempty"`                                     //日期
 	Time                  string             `json:"time,omitempty" bson:"time,omitempty"`                                     //时间
+	ID                    primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+}
+
+// CurrentInfoMap 映射表
+var CurrentInfoMap = []string{
+	"today_opening_price",
+	"yesterday_opening_price",
+	"current_price",
+	"top_price",
+	"floor_price",
+	"bid_price",
+	"auction_price",
+	"vol",
+	"amount",
+	"buy1_num",
+	"buy1_price",
+	"buy2_num",
+	"buy2_price",
+	"buy3_num",
+	"buy3_price",
+	"buy4_num",
+	"buy4_price",
+	"buy5_num",
+	"buy5_price",
+	"sell1_num",
+	"sell1_price",
+	"sell2_num",
+	"sell2_price",
+	"sell3_num",
+	"sell3_price",
+	"sell4_num",
+	"sell4_price",
+	"sell5_num",
+	"sell5_price",
+	"date",
+	"time",
 }

@@ -7,7 +7,7 @@ import (
 )
 
 // TEnterpriseIndicator 表名
-const TEnterpriseIndicator = "t-enterprise-indicator"
+const TEnterpriseIndicator = "t_enterprise_indicator"
 
 //MainIndicatorReq 主要指标请求体
 type MainIndicatorReq struct {
