@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"reflect"
 	"stock/src/models"
 	"strings"
 )
@@ -25,13 +26,17 @@ func (d *DbEngine) FetchCurrentInfo() {
 	// 股票名称、今日开盘价、昨日收盘价、当前价格、今日最高价、今日最低价、竞买价、竞卖价、成交股数、成交金额、买1手、买1报价、买2手、买2报价、…、买5报价、…、卖5报价、日期、时间
 	strArr := strings.Split(string(s), ",")
 
-	currentInfo := map[string]interface{}{}
+	ci := &models.CurrentInfo{}
+
+	st := reflect.ValueOf(ci).Elem()
+
 	for k, v := range strArr[1 : len(strArr)-2] {
-		currentInfo[models.CurrentInfoMap[k]] = v
+		st.Field(k).SetString(v)
 	}
-	log.Println(currentInfo)
+
+	log.Println(ci)
 	currentInfoMap := d.GetColl(models.TCurrentInfo)
-	ret, err := currentInfoMap.InsertOne(context.Background(), currentInfo)
+	ret, err := currentInfoMap.InsertOne(context.Background(), ci)
 
 	if err != nil {
 		log.Println(err.Error())

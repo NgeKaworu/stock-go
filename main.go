@@ -4,9 +4,7 @@ import (
 	"flag"
 	"log"
 	"os"
-	"reflect"
 	"stock/src/controllers"
-	"stock/src/models"
 )
 
 func main() {
@@ -37,16 +35,9 @@ func main() {
 
 	// log.Println(result["Result"].(map[string]interface{})["TiCaiXiangQingList"].([]interface{})[0].(map[string]interface{})["KeyWord"])
 
-	ci := &models.CurrentInfo{}
-
-	st := reflect.TypeOf(ci).Elem()
-	for i := 0; i < st.NumField(); i++ {
-		log.Println(st.Field(i).Tag)
-	}
-
 	// stocks := utils.Merge(constants.Ss50, constants.Hs300)
 	// log.Println(stocks)
-	// eng.FetchCurrentInfo()
+	eng.FetchCurrentInfo()
 	// for k, v := range constants.Ss50 {
 	// 	log.Println(k, v)
 	// 	// eng.FetchMainIndicator(v)
