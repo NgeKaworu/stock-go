@@ -27,6 +27,7 @@ func main() {
 	}
 
 	lab.TestFn()
+
 	// resp, err := http.Get("https://emh5.eastmoney.com/api/CaoPanBiDu/GetCaoPanBiDuPart2Get?fc=60000001&color=w")
 
 	// body, err := ioutil.ReadAll(resp.Body)
