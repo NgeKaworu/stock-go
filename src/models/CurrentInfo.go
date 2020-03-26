@@ -7,6 +7,7 @@ const TCurrentInfo = "tcurrent_info"
 
 // CurrentInfo 当前股票信息
 type CurrentInfo struct {
+	ID                    primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	TodayOpeningPrice     string             `json:"todayOpeningPrice,omitempty" bson:"today_opening_price,omitempty"`         //今日开盘价
 	YesterdayOpeningPrice string             `json:"yesterdayOpeningPrice,omitempty" bson:"yesterday_opening_price,omitempty"` //昨日收盘价
 	CurrentPrice          string             `json:"currentPrice,omitempty" bson:"current_price,omitempty"`                    //当前价格
@@ -38,7 +39,6 @@ type CurrentInfo struct {
 	Sell5Price            string             `json:"sell5Price,omitempty" bson:"sell_5_price,omitempty"`                       //卖5报价
 	Date                  string             `json:"date,omitempty" bson:"date,omitempty"`                                     //日期
 	Time                  string             `json:"time,omitempty" bson:"time,omitempty"`                                     //时间
-	ID                    primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 }
 
 // CurrentInfoMap 映射表

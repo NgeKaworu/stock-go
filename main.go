@@ -1,13 +1,12 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
-	"io/ioutil"
 	"log"
-	"net/http"
 	"os"
+	"reflect"
 	"stock/src/controllers"
+	"stock/src/models"
 )
 
 func main() {
@@ -28,15 +27,23 @@ func main() {
 		log.Println(err.Error())
 	}
 
-	resp, err := http.Get("https://emh5.eastmoney.com/api/CaoPanBiDu/GetCaoPanBiDuPart2Get?fc=60000001&color=w")
+	// resp, err := http.Get("https://emh5.eastmoney.com/api/CaoPanBiDu/GetCaoPanBiDuPart2Get?fc=60000001&color=w")
 
-	body, err := ioutil.ReadAll(resp.Body)
-	defer resp.Body.Close()
+	// body, err := ioutil.ReadAll(resp.Body)
+	// defer resp.Body.Close()
 
-	result := map[string]interface{}{}
-	err = json.Unmarshal(body, &result)
+	// result := map[string]interface{}{}
+	// err = json.Unmarshal(body, &result)
 
-	log.Println(result["Result"].(map[string]interface{})["TiCaiXiangQingList"].([]interface{})[0].(map[string]interface{})["KeyWord"])
+	// log.Println(result["Result"].(map[string]interface{})["TiCaiXiangQingList"].([]interface{})[0].(map[string]interface{})["KeyWord"])
+
+	ci := &models.CurrentInfo{}
+
+	st := reflect.TypeOf(ci).Elem()
+	for i := 0; i < st.NumField(); i++ {
+		log.Println(st.Field(i).Tag)
+	}
+
 	// stocks := utils.Merge(constants.Ss50, constants.Hs300)
 	// log.Println(stocks)
 	// eng.FetchCurrentInfo()
