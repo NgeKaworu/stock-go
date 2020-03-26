@@ -4,6 +4,7 @@ import (
 	"flag"
 	"log"
 	"os"
+	lab "stock/src/Lab"
 	"stock/src/controllers"
 )
 
@@ -25,6 +26,7 @@ func main() {
 		log.Println(err.Error())
 	}
 
+	lab.TestFn()
 	// resp, err := http.Get("https://emh5.eastmoney.com/api/CaoPanBiDu/GetCaoPanBiDuPart2Get?fc=60000001&color=w")
 
 	// body, err := ioutil.ReadAll(resp.Body)
@@ -37,7 +39,7 @@ func main() {
 
 	// stocks := utils.Merge(constants.Ss50, constants.Hs300)
 	// log.Println(stocks)
-	eng.FetchCurrentInfo()
+	// eng.FetchCurrentInfo()
 	// for k, v := range constants.Ss50 {
 	// 	log.Println(k, v)
 	// 	// eng.FetchMainIndicator(v)
