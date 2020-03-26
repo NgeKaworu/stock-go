@@ -1,8 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"stock/src/controllers"
 )
@@ -25,9 +28,18 @@ func main() {
 		log.Println(err.Error())
 	}
 
+	resp, err := http.Get("https://emh5.eastmoney.com/api/CaoPanBiDu/GetCaoPanBiDuPart2Get?fc=60000001&color=w")
+
+	body, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+
+	result := map[string]interface{}{}
+	err = json.Unmarshal(body, &result)
+
+	log.Println(result["Result"].(map[string]interface{})["TiCaiXiangQingList"].([]interface{})[0].(map[string]interface{})["KeyWord"])
 	// stocks := utils.Merge(constants.Ss50, constants.Hs300)
 	// log.Println(stocks)
-	eng.FetchCurrentInfo()
+	// eng.FetchCurrentInfo()
 	// for k, v := range constants.Ss50 {
 	// 	log.Println(k, v)
 	// 	// eng.FetchMainIndicator(v)
