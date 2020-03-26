@@ -1,14 +1,13 @@
 package lab
 
 import (
-	"fmt"
 	"log"
 	"reflect"
 )
 
 // Test 实验
 type Test struct {
-	ID             *string    `aaa:"some"` //用户id
+	ID             *string    `bson:"some,omitempty"` //用户id
 	Name           *string    //活动名
 	Describe       *string    //描述
 	Barbolas       *[]*string //图片描述
@@ -22,6 +21,8 @@ type Test struct {
 	CanComment     *string    //是否可以留言
 	BizType        *string    //业务类型
 	BizStatus      *string    //业务状态
+	TestArr        []interface{}
+	TestMap        map[interface{}]interface{}
 }
 
 // TestFn 实验
@@ -43,16 +44,21 @@ func TestFn() {
 		CanComment:     &s,
 		BizType:        &s,
 		BizStatus:      &s,
+		TestArr:        []interface{}{1, "a"},
+		TestMap:        map[interface{}]interface{}{"a": "a", 0: 1},
 	}
 
 	log.Println(t)
 	m := make(map[string]interface{})
 
 	elem := reflect.ValueOf(t).Elem()
-	telem := reflect.TypeOf(t).Elem()
+	// elemT := reflect.TypeOf(t).Elem()
 	relType := elem.Type()
+	// fmt.Println(telem.Field(i).Tag)
 	for i := 0; i < relType.NumField(); i++ {
-		fmt.Println(telem.Field(i).Tag)
+
+		log.Println(relType.Field(i).Name, elem.Field(i).Kind(), relType.Field(i).Tag.Get("bson"))
+
 		m[relType.Field(i).Name] = elem.Field(i).Interface()
 	}
 	log.Println(m)
