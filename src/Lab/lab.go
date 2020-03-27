@@ -78,7 +78,7 @@ func Struct2Map(s interface{}, m *map[string]interface{}) {
 	}
 
 	relType := elem.Type() // 真实类型
-	log.Println(relType.NumField())
+
 	for i := 0; i < relType.NumField(); i++ {
 		canEmpty := false
 		tagsName := relType.Field(i).Name
@@ -94,10 +94,17 @@ func Struct2Map(s interface{}, m *map[string]interface{}) {
 			}
 		}
 
-		if curElem.Kind() == reflect.Ptr && curElem.IsNil() && canEmpty {
-			continue
+		if curElem.Kind() == reflect.Ptr {
+			if curElem.IsNil() {
+				if canEmpty {
+					continue
+				}
+				(*m)[tagsName] = nil
+			} else {
+				(*m)[tagsName] = curElem.Elem().Interface()
+			}
+		} else {
+			(*m)[tagsName] = curElem.Interface()
 		}
-
-		(*m)[tagsName] = curElem.Interface()
 	}
 }
