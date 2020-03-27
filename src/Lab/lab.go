@@ -8,22 +8,24 @@ import (
 
 // Test 实验
 type Test struct {
-	ID             *string    `bson:"some,omitempty"` //用户id
-	Name           *string    //活动名
-	Describe       *string    //描述
-	Barbolas       *[]*string //图片描述
-	PublisherRole  string     //发布接龙角色ID
-	HeadImg        *string    //头图
-	PrivacyType    *string    //传播隐私类型
-	BizStartDate   string     //活动开始时间 2019-02-02 18:00:00
-	BizEndData     string     //活动结束时间
-	SignState      string     //签到状态
-	PrivacyVisable *string    //参与者可见状态
-	CanComment     *string    //是否可以留言
-	BizType        *string    //业务类型
-	BizStatus      *string    //业务状态
+	ID            *string    `bson:"some,omitempty"` //用户id
+	Name          *string    //活动名
+	Describe      *string    //描述
+	Barbolas      *[]*string //图片描述
+	PublisherRole string     //发布接龙角色ID
+	HeadImg       *string    //头图
+	PrivacyType   *string    //传播隐私类型
+	BizStartDate  string     //活动开始时间 2019-02-02 18:00:00
+	BizEndData    string     //活动结束时间
+	SignState     string     //签到状态
+
+	PrivacyVisable *string //参与者可见状态
+	CanComment     *string //是否可以留言
+	BizType        *string //业务类型
+	BizStatus      *string //业务状态
 	TestArr        []interface{}
 	TestMap        map[interface{}]interface{}
+	TestNumber     int32
 }
 
 // TestFn 实验
@@ -52,6 +54,8 @@ func TestFn() {
 	log.Println(t)
 	m := make(map[string]interface{})
 
+	// i := 1
+	// slice1 := []int{0, 1, 3}
 	Struct2Map(t, &m)
 
 	log.Println(m)
@@ -60,22 +64,46 @@ func TestFn() {
 
 // Struct2Map Struct转成Interface
 func Struct2Map(s interface{}, m *map[string]interface{}) {
+	structType := reflect.TypeOf(s)
+	var elem reflect.Value
+	if structType.Kind() == reflect.Ptr {
+		elem = reflect.ValueOf(s).Elem()
+	} else {
+		elem = reflect.ValueOf(s)
+	}
 
-	elem := reflect.ValueOf(s).Elem()
-	relType := elem.Type()
+	relKind := elem.Kind() // 泛型
+	if relKind != reflect.Struct {
+		panic("错误")
+	}
+
+	relType := elem.Type() // 真实类型
+
 	for i := 0; i < relType.NumField(); i++ {
+
 		if tags, ok := relType.Field(i).Tag.Lookup("bson"); ok {
+			canEmpty := false
+			tagsName := relType.Field(i).Name
+
+			curElem := elem.Field(i)
+
 			tagsArr := strings.Split(tags, ",")
 			for _, v := range tagsArr {
-				switch v {
-					case ""
+				if v == "omitempty" {
+					canEmpty = true
+				} else {
+					tagsName = v
 				}
-			}
-		}
-		
-		log.Println(relType.Field(i).Name, elem.Field(i).Kind())
-		
 
-		(*m)[relType.Field(i).Name] = elem.Field(i).Interface()
+			}
+			log.Println(curElem.IsNil(), canEmpty)
+			if curElem.IsNil() && canEmpty {
+				continue
+			}
+
+			log.Println(i)
+			(*m)[tagsName] = curElem.Interface()
+		}
+
 	}
 }
