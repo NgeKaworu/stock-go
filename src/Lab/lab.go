@@ -94,17 +94,34 @@ func Struct2Map(s interface{}, m *map[string]interface{}) {
 			}
 		}
 
+		var v reflect.Value
 		if curElem.Kind() == reflect.Ptr {
 			if curElem.IsNil() {
 				if canEmpty {
 					continue
 				}
 				(*m)[tagsName] = nil
+				continue
 			} else {
-				(*m)[tagsName] = curElem.Elem().Interface()
+				v = curElem.Elem()
 			}
 		} else {
-			(*m)[tagsName] = curElem.Interface()
+			v = curElem
 		}
+
+		SetValue(v, m, tagsName)
+	}
+}
+
+// SetValue 设置值
+func SetValue(v reflect.Value, m *map[string]interface{}, k string) {
+	switch v.Kind() {
+	case reflect.Struct:
+		innerMap := make(map[string]interface{})
+	case reflect.Slice, reflect.Map:
+		log.Println("Map, Slice")
+	default:
+		(*m)[k] = v.Interface()
+
 	}
 }
