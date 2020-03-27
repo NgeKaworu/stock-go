@@ -78,15 +78,12 @@ func Struct2Map(s interface{}, m *map[string]interface{}) {
 	}
 
 	relType := elem.Type() // 真实类型
-
+	log.Println(relType.NumField())
 	for i := 0; i < relType.NumField(); i++ {
-
+		canEmpty := false
+		tagsName := relType.Field(i).Name
+		curElem := elem.Field(i)
 		if tags, ok := relType.Field(i).Tag.Lookup("bson"); ok {
-			canEmpty := false
-			tagsName := relType.Field(i).Name
-
-			curElem := elem.Field(i)
-
 			tagsArr := strings.Split(tags, ",")
 			for _, v := range tagsArr {
 				if v == "omitempty" {
@@ -94,16 +91,13 @@ func Struct2Map(s interface{}, m *map[string]interface{}) {
 				} else {
 					tagsName = v
 				}
-
 			}
-			log.Println(curElem.IsNil(), canEmpty)
-			if curElem.IsNil() && canEmpty {
-				continue
-			}
-
-			log.Println(i)
-			(*m)[tagsName] = curElem.Interface()
 		}
 
+		if curElem.Kind() == reflect.Ptr && curElem.IsNil() && canEmpty {
+			continue
+		}
+
+		(*m)[tagsName] = curElem.Interface()
 	}
 }
