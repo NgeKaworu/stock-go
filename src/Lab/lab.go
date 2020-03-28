@@ -16,7 +16,7 @@ type Test struct {
 	HeadImg       *string    //头图
 	PrivacyType   *string    //传播隐私类型
 	BizStartDate  string     //活动开始时间 2019-02-02 18:00:00
-	BizEndData    string     //活动结束时间
+	BizEndData    string     `bson:"some1,omitempty"` //活动结束时间
 	SignState     string     //签到状态
 
 	PrivacyVisable *string //参与者可见状态
@@ -34,21 +34,21 @@ func TestFn() {
 	sa := []*string{&s}
 
 	t := &Test{
-		Name:          &s,
-		Describe:      &s,
-		Barbolas:      &sa,
-		PublisherRole: "5e73018c324cecdcfda7bcac",
-		HeadImg:       &s,
-		PrivacyType:   &s,
-		BizStartDate:  "String",
-		// BizEndData:     "String",
-		SignState:      "关闭",
-		PrivacyVisable: &s,
-		CanComment:     &s,
-		BizType:        &s,
+		// Name:          &s,
+		// Describe:      &s,
+		Barbolas: &sa,
+		// PublisherRole: "5e73018c324cecdcfda7bcac",
+		// HeadImg:       &s,
+		// PrivacyType:   &s,
+		// BizStartDate:  "String",
+		// // BizEndData:     "String",
+		// SignState:      "关闭",
+		// PrivacyVisable: &s,
+		// CanComment:     &s,
+		// BizType:        &s,
 		// BizStatus:      &s,
 		TestArr: []interface{}{1, "a"},
-		TestMap: map[interface{}]interface{}{"a": "a", 0: 1},
+		// TestMap: map[interface{}]interface{}{"a": "a", 0: 1},
 	}
 
 	log.Println(t)
@@ -56,28 +56,27 @@ func TestFn() {
 
 	// i := 1
 	// slice1 := []int{0, 1, 3}
+
 	Struct2Map(t, &m)
 
 	log.Println(m)
 
 }
 
-// Struct2Map Struct转成Interface
-func Struct2Map(s interface{}, m *map[interface{}]interface{}) {
-	structType := reflect.TypeOf(s)
+// Struct2Map 转成Map
+func Struct2Map(s, m interface{}) {
 	var elem reflect.Value
-	if structType.Kind() == reflect.Ptr {
+	if reflect.TypeOf(s).Kind() == reflect.Ptr {
 		elem = reflect.ValueOf(s).Elem()
 	} else {
 		elem = reflect.ValueOf(s)
 	}
 
-	relKind := elem.Kind() // 泛型
-	if relKind != reflect.Struct {
-		panic("错误")
-	}
-
 	relType := elem.Type() // 真实类型
+
+	if elem.Kind() != reflect.Struct {
+		panic("error just allow struct")
+	}
 
 	for i := 0; i < relType.NumField(); i++ {
 		canEmpty := false
@@ -94,38 +93,44 @@ func Struct2Map(s interface{}, m *map[interface{}]interface{}) {
 			}
 		}
 
-		SetValue(curElem, m, tagsName, canEmpty)
+		SetValue(curElem, m, tagsName, canEmpty, false)
 	}
 }
 
 // SetValue 设置值
-func SetValue(v reflect.Value, m *map[interface{}]interface{}, k interface{}, canEmpty bool) {
+func SetValue(v reflect.Value, m, k interface{}, canEmpty, isArr bool) {
 	switch v.Kind() {
 	case reflect.Struct:
 		innerMap := make(map[interface{}]interface{})
 		Struct2Map(v.Interface(), &innerMap)
-		(*m)[k] = innerMap
+		(*m.(*map[interface{}]interface{}))[k] = innerMap
 	case reflect.Map:
 		innerMap := make(map[interface{}]interface{})
 		for _, idx := range v.MapKeys() {
-			SetValue(v.MapIndex(idx), &innerMap, idx.Interface(), false)
+			SetValue(v.MapIndex(idx), &innerMap, idx.Interface(), false, false)
 		}
-		(*m)[k] = innerMap
+		(*m.(*map[interface{}]interface{}))[k] = innerMap
 	case reflect.Slice:
-		sliceValue := reflect.ValueOf(v)
+		innerSlice := make([]interface{}, v.Len())
 		for i := 0; i < v.Len(); i++ {
-			log.Println(i, sliceValue.Field(i))
+			SetValue(v.Index(i), &innerSlice, i, false, true)
 		}
+		(*m.(*map[interface{}]interface{}))[k] = innerSlice
 	case reflect.Ptr:
 		if v.IsNil() {
 			if canEmpty {
 				return
 			}
-			(*m)[k] = nil
+			(*m.(*map[interface{}]interface{}))[k] = nil
 		} else {
-			SetValue(v.Elem(), m, k, canEmpty)
+			SetValue(v.Elem(), m, k, canEmpty, isArr)
 		}
 	default:
-		(*m)[k] = v.Interface()
+		if isArr {
+			(*m.(*[]interface{}))[k.(int)] = v.Interface()
+		} else {
+
+			(*m.(*map[interface{}]interface{}))[k] = v.Interface()
+		}
 	}
 }
