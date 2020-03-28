@@ -6,24 +6,23 @@ import (
 
 // Test 实验结构
 type Test struct {
-	ID            *string    `bson:"some,omitempty" ` //用户id
-	Name          *string    //活动名
-	Describe      *string    //描述
-	Barbolas      *[]*string //图片描述
-	PublisherRole string     `bson:"r_id,omitempty" oid:"true"` //发布接龙角色ID
-	HeadImg       *string    //头图
-	PrivacyType   *string    //传播隐私类型
-	BizStartDate  string     //活动开始时间 2019-02-02 18:00:00
-	BizEndData    string     `bson:"some1,omitempty"` //活动结束时间
-	SignState     string     //签到状态
-
-	PrivacyVisable *string //参与者可见状态
-	CanComment     *string //是否可以留言
-	BizType        *string //业务类型
-	BizStatus      *string //业务状态
-	TestArr        []interface{}
-	TestMap        map[interface{}]interface{}
-	TestNumber     int32
+	ID             *string                     `bson:"id,omitempty" oid:"true"`             //用户id
+	Name           *string                     `bson:"name,omitempty"`                      //活动名
+	Describe       *string                     `bson:"describe,omitempty"`                  //描述
+	Barbolas       *[]*string                  `bson:"barbolas,omitempty"`                  //图片描述
+	PublisherRole  string                      `bson:"publisher_role,omitempty" oid:"true"` //发布接龙角色ID
+	HeadImg        *string                     `bson:"head_img,omitempty"`                  //头图
+	PrivacyType    *string                     `bson:"privacy_type,omitempty"`              //传播隐私类型
+	BizStartDate   string                      `bson:"biz_start_date,omitempty"`            //活动开始时间 2019-02-02 18:00:00
+	BizEndData     string                      `bson:"biz_end_data,omitempty"`              //活动结束时间
+	SignState      string                      `bson:"sign_state,omitempty"`                //签到状态
+	PrivacyVisable *string                     `bson:"privacy_visable,omitempty"`           //参与者可见状态
+	CanComment     *string                     `bson:"can_comment,omitempty"`               //是否可以留言
+	BizType        *string                     `bson:"biz_type,omitempty"`                  //业务类型
+	BizStatus      *string                     `bson:"biz_status,omitempty"`                //业务状态
+	TestArr        []interface{}               `bson:"test_arr,omitempty"`                  //测试数组
+	TestMap        map[interface{}]interface{} `bson:"test_map,omitempty"`                  //测试map
+	TestNumber     int32                       `bson:"test_number,omitempty"`               //测试数字
 }
 
 // Lab 实验

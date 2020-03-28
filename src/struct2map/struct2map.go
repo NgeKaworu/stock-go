@@ -76,6 +76,7 @@ func SetValue(v reflect.Value, m, k interface{}, canEmpty, isArr, isObjID bool) 
 			value = nil
 		} else {
 			SetValue(v.Elem(), m, k, canEmpty, isArr, isObjID)
+			return
 		}
 	default:
 		value = v.Interface()
