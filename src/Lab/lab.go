@@ -52,7 +52,7 @@ func TestFn() {
 	}
 
 	log.Println(t)
-	m := make(map[string]interface{})
+	m := make(map[interface{}]interface{})
 
 	// i := 1
 	// slice1 := []int{0, 1, 3}
@@ -63,7 +63,7 @@ func TestFn() {
 }
 
 // Struct2Map Struct转成Interface
-func Struct2Map(s interface{}, m *map[string]interface{}) {
+func Struct2Map(s interface{}, m *map[interface{}]interface{}) {
 	structType := reflect.TypeOf(s)
 	var elem reflect.Value
 	if structType.Kind() == reflect.Ptr {
@@ -94,34 +94,38 @@ func Struct2Map(s interface{}, m *map[string]interface{}) {
 			}
 		}
 
-		var v reflect.Value
-		if curElem.Kind() == reflect.Ptr {
-			if curElem.IsNil() {
-				if canEmpty {
-					continue
-				}
-				(*m)[tagsName] = nil
-				continue
-			} else {
-				v = curElem.Elem()
-			}
-		} else {
-			v = curElem
-		}
-
-		SetValue(v, m, tagsName)
+		SetValue(curElem, m, tagsName, canEmpty)
 	}
 }
 
 // SetValue 设置值
-func SetValue(v reflect.Value, m *map[string]interface{}, k string) {
+func SetValue(v reflect.Value, m *map[interface{}]interface{}, k interface{}, canEmpty bool) {
 	switch v.Kind() {
 	case reflect.Struct:
-		innerMap := make(map[string]interface{})
-	case reflect.Slice, reflect.Map:
-		log.Println("Map, Slice")
+		innerMap := make(map[interface{}]interface{})
+		Struct2Map(v.Interface(), &innerMap)
+		(*m)[k] = innerMap
+	case reflect.Map:
+		innerMap := make(map[interface{}]interface{})
+		for _, idx := range v.MapKeys() {
+			SetValue(v.MapIndex(idx), &innerMap, idx.Interface(), false)
+		}
+		(*m)[k] = innerMap
+	case reflect.Slice:
+		sliceValue := reflect.ValueOf(v)
+		for i := 0; i < v.Len(); i++ {
+			log.Println(i, sliceValue.Field(i))
+		}
+	case reflect.Ptr:
+		if v.IsNil() {
+			if canEmpty {
+				return
+			}
+			(*m)[k] = nil
+		} else {
+			SetValue(v.Elem(), m, k, canEmpty)
+		}
 	default:
 		(*m)[k] = v.Interface()
-
 	}
 }
