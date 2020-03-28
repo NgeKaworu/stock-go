@@ -4,7 +4,6 @@ import (
 	"flag"
 	"log"
 	"os"
-	lab "stock/src/Lab"
 	"stock/src/controllers"
 )
 
@@ -25,8 +24,6 @@ func main() {
 	if err != nil {
 		log.Println(err.Error())
 	}
-
-	lab.TestFn()
 
 	// resp, err := http.Get("https://emh5.eastmoney.com/api/CaoPanBiDu/GetCaoPanBiDuPart2Get?fc=60000001&color=w")
 
