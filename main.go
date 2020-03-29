@@ -4,7 +4,10 @@ import (
 	"flag"
 	"log"
 	"os"
-	"stock/src/controllers"
+	"stock/src/constants"
+	"stock/src/dbengin"
+	"stock/src/stock"
+	"stock/src/utils"
 )
 
 func main() {
@@ -18,29 +21,34 @@ func main() {
 	log.SetOutput(os.Stdout)
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 
-	eng := controllers.NewDbEngine()
+	eng := dbengin.NewDbEngine()
 	err := eng.Open(*mongo, *db, *dbinit)
 
 	if err != nil {
 		log.Println(err.Error())
 	}
 
-	// resp, err := http.Get("https://emh5.eastmoney.com/api/CaoPanBiDu/GetCaoPanBiDuPart2Get?fc=60000001&color=w")
-
-	// body, err := ioutil.ReadAll(resp.Body)
-	// defer resp.Body.Close()
-
-	// result := map[string]interface{}{}
-	// err = json.Unmarshal(body, &result)
-
-	// log.Println(result["Result"].(map[string]interface{})["TiCaiXiangQingList"].([]interface{})[0].(map[string]interface{})["KeyWord"])
-
-	// stocks := utils.Merge(constants.Ss50, constants.Hs300)
-	// log.Println(stocks)
-	// eng.FetchCurrentInfo()
+	stocks := utils.Merge(constants.Ss50, constants.Hs300)
+	for k, v := range stocks {
+		s := &stock.Stock{
+			Code:       k,
+			BourseCode: v,
+		}
+		switch v {
+		case "01":
+			s.Bourse = "sh"
+		case "02":
+			s.Bourse = "sz"
+		default:
+			break
+		}
+		// s.FetchClassify()
+		log.Printf("%+v\n", s)
+		break
+	}
 	// for k, v := range constants.Ss50 {
 	// 	log.Println(k, v)
-	// 	// eng.FetchMainIndicator(v)
+	//
 	// }
 
 }

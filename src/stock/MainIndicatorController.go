@@ -1,19 +1,17 @@
-package controllers
+package stock
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"stock/src/models"
-	"time"
 )
 
 // FetchMainIndicator 获取主要指标
-func (d *DbEngine) FetchMainIndicator(code, bourse string) {
-	curIndicator := &models.MainIndicatorReq{Fc: code + bourse, CorpType: "4", LatestCount: 5, ReportDateType: 0}
+func (s *Stock) FetchMainIndicator() {
+	curIndicator := &models.MainIndicatorReq{Fc: s.Code + s.BourseCode, CorpType: "4", LatestCount: 12, ReportDateType: 0}
 
 	reqBody, err := json.Marshal(curIndicator)
 
@@ -33,25 +31,10 @@ func (d *DbEngine) FetchMainIndicator(code, bourse string) {
 
 	err = json.Unmarshal(body, &result)
 
-	enterpriseList := result.Result.Enterprise
-
-	enterprise := d.GetColl(models.TEnterpriseIndicator)
-
-	var enterpriseListTemp []interface{}
-
-	for _, v := range enterpriseList {
-		createDate := time.Now().Local()
-		v.CreateDate = createDate
-		v.Code = code
-		enterpriseListTemp = append(enterpriseListTemp, v)
-	}
-
-	ret, err := enterprise.InsertMany(context.Background(), enterpriseListTemp)
+	s.Enterprise = &result.Result.Enterprise
 
 	if err != nil {
 		log.Println(err.Error())
 	}
-
-	log.Println(ret)
 
 }
