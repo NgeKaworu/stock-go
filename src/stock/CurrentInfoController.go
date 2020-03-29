@@ -27,7 +27,6 @@ func (s *Stock) FetchCurrentInfo() {
 	ci := &models.CurrentInfo{}
 
 	st := reflect.ValueOf(ci).Elem()
-
 	for k, v := range strArr[1 : len(strArr)-2] {
 		st.Field(k).SetString(v)
 	}

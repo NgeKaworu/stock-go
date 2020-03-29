@@ -27,7 +27,15 @@ func main() {
 	if err != nil {
 		log.Println(err.Error())
 	}
-
+	// 风险收益率(Rate of Risked Return)
+	// 假设10年内 > 80% 30年内 < 20%
+	RRR := 0.086
+	// 通货
+	CPI := 0.052
+	// 无风险利率 (The risk-free rate of interest)
+	RFR := 0.0285
+	discount := RRR + CPI + RFR
+	log.Println(discount)
 	stocks := utils.Merge(constants.Ss50, constants.Hs300)
 	for k, v := range stocks {
 		s := &stock.Stock{
@@ -42,7 +50,11 @@ func main() {
 		default:
 			break
 		}
-		// s.FetchClassify()
+		s.FetchCurrentInfo()
+		s.FetchMainIndicator()
+		s.FetchClassify()
+		s.Calc()
+
 		log.Printf("%+v\n", s)
 		break
 	}
