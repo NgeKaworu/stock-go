@@ -2,28 +2,34 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"reflect"
 	"sort"
 )
 
 // 结构体定义
 type test struct {
-	value float64
-	str   string
+	value   float64
+	str     string
+	Another float64
 }
 
 func main() {
 
 	s := make([]test, 5)
-	s[0] = test{value: 2.21423, str: "test2"}
-	s[1] = test{value: 4.21423, str: "test4"}
-	s[2] = test{value: 1.21423, str: "test1"}
-	s[3] = test{value: 5.21423, str: "test5"}
-	s[4] = test{value: 3.21423, str: "test3"}
+	s[0] = test{value: 2.21423, Another: 2.21423, str: "test2"}
+	s[1] = test{value: 4.21423, Another: 3.21423, str: "test4"}
+	s[2] = test{value: 1.21423, Another: 5.21423, str: "test1"}
+	s[3] = test{value: 5.21423, Another: 7.21423, str: "test5"}
+	s[4] = test{value: 3.21423, Another: 0.21423, str: "test3"}
 	fmt.Println("初始化结果:")
 	fmt.Println(s)
 
 	// 从小到大排序(不稳定排序)
 	sort.Slice(s, func(i, j int) bool {
+		s1 := reflect.ValueOf(s[i])
+		s2 := reflect.ValueOf(s[j])
+		log.Println(s1.FieldByName("Another").Interface().(float64) > s2.FieldByName("Another").Interface().(float64))
 		if s[i].value < s[j].value {
 			return true
 		}

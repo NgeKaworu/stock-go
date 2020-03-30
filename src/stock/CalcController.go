@@ -117,3 +117,4 @@ func (s *Stock) CalcDCE(r float64) {
 		log.Println(err)
 	}
 }
+
