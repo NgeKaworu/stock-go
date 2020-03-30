@@ -17,4 +17,5 @@ type Stock struct {
 	DPE         float64              //动态利润估值
 	DCE         float64              //动态现金估值
 	AAGR        float64              //平均年增长率
+	Grade       int                  //评分
 }
