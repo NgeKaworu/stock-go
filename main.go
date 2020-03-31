@@ -2,14 +2,13 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"reflect"
 	"sort"
 )
 
 // 结构体定义
 type test struct {
-	value   float64
+	Value   float64
 	str     string
 	Another float64
 }
@@ -17,24 +16,25 @@ type test struct {
 func main() {
 
 	s := make([]test, 5)
-	s[0] = test{value: 2.21423, Another: 2.21423, str: "test2"}
-	s[1] = test{value: 4.21423, Another: 3.21423, str: "test4"}
-	s[2] = test{value: 1.21423, Another: 5.21423, str: "test1"}
-	s[3] = test{value: 5.21423, Another: 7.21423, str: "test5"}
-	s[4] = test{value: 3.21423, Another: 0.21423, str: "test3"}
+	s[0] = test{Value: 2.21423, Another: 2.21423, str: "test2"}
+	s[1] = test{Value: 4.21423, Another: 3.21423, str: "test4"}
+	s[2] = test{Value: 1.21423, Another: 5.21423, str: "test1"}
+	s[3] = test{Value: 5.21423, Another: 7.21423, str: "test5"}
+	s[4] = test{Value: 3.21423, Another: 0.21423, str: "test3"}
 	fmt.Println("初始化结果:")
 	fmt.Println(s)
 
-	// 从小到大排序(不稳定排序)
-	sort.Slice(s, func(i, j int) bool {
-		s1 := reflect.ValueOf(s[i])
-		s2 := reflect.ValueOf(s[j])
-		log.Println(s1.FieldByName("Another").Interface().(float64) > s2.FieldByName("Another").Interface().(float64))
-		if s[i].value < s[j].value {
-			return true
-		}
-		return false
-	})
+	CusSort(s, true, "Value")
+
+	// sort.Slice(s, func(i, j int) bool {
+	// 	s1 := reflect.ValueOf(s[i])
+	// 	s2 := reflect.ValueOf(s[j])
+	// 	if s1.FieldByName("Value").Interface().(float64) < s2.FieldByName("Value").Interface().(float64) {
+	// 		return true
+	// 	}
+	// 	return false
+	// })
+
 	fmt.Println("\n从小到大排序结果:")
 	fmt.Println(s)
 
@@ -90,4 +90,19 @@ func main() {
 	//
 	// }
 
+}
+
+// CusSort 自定义排序
+func CusSort(s interface{}, gt bool, key string) {
+	// var isGt bool
+	sort.Slice(s, func(i, j int) bool {
+		val := reflect.ValueOf(s)
+		s1 := val.Index(i)
+		s2 := val.Index(j)
+		if s1.FieldByName(key).Interface().(float64) > s2.FieldByName(key).Interface().(float64) {
+			return true
+		}
+		return false
+
+	})
 }
