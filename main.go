@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"reflect"
 	"sort"
 )
@@ -26,15 +25,7 @@ func main() {
 	fmt.Println(s)
 
 	// 从小到大排序(不稳定排序)
-	sort.Slice(s, func(i, j int) bool {
-		s1 := reflect.ValueOf(s[i])
-		s2 := reflect.ValueOf(s[j])
-		log.Println(s1.FieldByName("Another").Interface().(float64) > s2.FieldByName("Another").Interface().(float64))
-		if s[i].value < s[j].value {
-			return true
-		}
-		return false
-	})
+	CusSort(s, "Another", false)
 	fmt.Println("\n从小到大排序结果:")
 	fmt.Println(s)
 
@@ -90,4 +81,23 @@ func main() {
 	//
 	// }
 
+}
+
+// CusSort 自定义 排序
+func CusSort(s interface{}, key string, gt bool) {
+
+	sort.Slice(s, func(i, j int) bool {
+		var isGt bool
+		val := reflect.ValueOf(s)
+		s1 := val.Index(i).FieldByName(key).Interface().(float64)
+		s2 := val.Index(j).FieldByName(key).Interface().(float64)
+		if s1 > s2 {
+			isGt = true
+		}
+		if gt {
+			return isGt
+		}
+
+		return !isGt
+	})
 }
