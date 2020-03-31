@@ -1,58 +1,63 @@
 package main
 
 import (
+	"flag"
 	"fmt"
-	"reflect"
-	"sort"
+	"log"
+	"os"
+	"stock/src/dbengin"
+	"stock/src/stock"
 )
 
-// 结构体定义
-type test struct {
-	value   float64
-	str     string
-	Another float64
-}
-
 func main() {
+	var (
+		dbinit = flag.Bool("i", false, "init database flag")
+		mongo  = flag.String("m", "mongodb://localhost:27017", "mongod addr flag")
+		db     = flag.String("db", "stock", "database name")
+		pb     = flag.Int("pb", 0, "pb weight")
+		pe     = flag.Int("pe", 0, "pe weight")
+		peg    = flag.Int("peg", 0, "peg weight")
+		roe    = flag.Int("roe", 0, "roe weight")
+	)
+	flag.Parse()
 
-	s := make([]test, 5)
-	s[0] = test{value: 2.21423, Another: 2.21423, str: "test2"}
-	s[1] = test{value: 4.21423, Another: 3.21423, str: "test4"}
-	s[2] = test{value: 1.21423, Another: 5.21423, str: "test1"}
-	s[3] = test{value: 5.21423, Another: 7.21423, str: "test5"}
-	s[4] = test{value: 3.21423, Another: 0.21423, str: "test3"}
-	fmt.Println("初始化结果:")
-	fmt.Println(s)
+	log.SetOutput(os.Stdout)
+	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 
+	eng := dbengin.NewDbEngine()
+	err := eng.Open(*mongo, *db, *dbinit)
+
+	if err != nil {
+		log.Println(err.Error())
+	}
+	// 风险收益率(Rate of Risked Return)
+	// 假设10年内 > 80% 30年内 < 20%
+	RRR := 0.086
+	// 通货
+	CPI := 0.052
+	// 无风险利率 (The risk-free rate of interest)
+	RFR := 0.0285
+	discount := RRR + CPI + RFR
+	log.Println(discount)
+
+	s := make([]stock.Stock, 5)
+	s[0] = stock.Stock{Code: "01", Bourse: "sh", BourseCode: "01", Enterprise: nil, CurrentInfo: nil, Classify: "nil", PB: 100.0, PE: 20.0, PEG: 10.0, ROE: 13.0, DPE: 56.0, DCE: 47.0, AAGR: 23.0, Grade: 0}
+	s[1] = stock.Stock{Code: "01", Bourse: "sh", BourseCode: "01", Enterprise: nil, CurrentInfo: nil, Classify: "nil", PB: 80.0, PE: 40.0, PEG: 80.0, ROE: 1456.0, DPE: 78.0, DCE: 15.0, AAGR: 14.0, Grade: 0}
+	s[2] = stock.Stock{Code: "01", Bourse: "sh", BourseCode: "01", Enterprise: nil, CurrentInfo: nil, Classify: "nil", PB: 90.0, PE: 50.0, PEG: 90.0, ROE: 456.0, DPE: 36.0, DCE: 47.0, AAGR: 665.0, Grade: 0}
+	s[3] = stock.Stock{Code: "01", Bourse: "sh", BourseCode: "01", Enterprise: nil, CurrentInfo: nil, Classify: "nil", PB: 60.0, PE: 30.0, PEG: 20.0, ROE: 312.0, DPE: 65.0, DCE: 53.0, AAGR: 51.0, Grade: 0}
+	s[4] = stock.Stock{Code: "01", Bourse: "sh", BourseCode: "01", Enterprise: nil, CurrentInfo: nil, Classify: "nil", PB: 50.0, PE: 10.0, PEG: 30.0, ROE: 35.0, DPE: 85.0, DCE: 41.0, AAGR: 45.0, Grade: 0}
+	fmt.Println("初始化结果:\n", s)
+
+	weight := map[string][]interface{}{
+		"pb":  {*pb, false},
+		"pe":  {*pe, true},
+		"peg": {*peg, true},
+		"roe": {*roe, true},
+	}
 	// 从小到大排序(不稳定排序)
-	CusSort(s, "Another", false)
+	stock.WeightSort(weight, &s)
 	fmt.Println("\n从小到大排序结果:")
 	fmt.Println(s)
-
-	// var (
-	// 	dbinit = flag.Bool("i", false, "init database flag")
-	// 	mongo  = flag.String("m", "mongodb://localhost:27017", "mongod addr flag")
-	// 	db     = flag.String("db", "stock", "database name")
-	// )
-	// flag.Parse()
-
-	// log.SetOutput(os.Stdout)
-	// log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
-
-	// eng := dbengin.NewDbEngine()
-	// err := eng.Open(*mongo, *db, *dbinit)
-
-	// if err != nil {
-	// 	log.Println(err.Error())
-	// }
-	// // 风险收益率(Rate of Risked Return)
-	// // 假设10年内 > 80% 30年内 < 20%
-	// RRR := 0.086
-	// // 通货
-	// CPI := 0.052
-	// // 无风险利率 (The risk-free rate of interest)
-	// RFR := 0.0285
-	// discount := RRR + CPI + RFR
 	// log.Println(discount)
 	// stocks := utils.Merge(constants.Ss50, constants.Hs300)
 	// for k, v := range stocks {
@@ -72,32 +77,4 @@ func main() {
 	// 	s.FetchMainIndicator()
 	// 	s.FetchClassify()
 	// 	s.Calc()
-
-	// 	log.Printf("%+v\n", s)
-	// 	break
-	// }
-	// for k, v := range constants.Ss50 {
-	// 	log.Println(k, v)
-	//
-	// }
-
-}
-
-// CusSort 自定义 排序
-func CusSort(s interface{}, key string, gt bool) {
-
-	sort.Slice(s, func(i, j int) bool {
-		var isGt bool
-		val := reflect.ValueOf(s)
-		s1 := val.Index(i).FieldByName(key).Interface().(float64)
-		s2 := val.Index(j).FieldByName(key).Interface().(float64)
-		if s1 > s2 {
-			isGt = true
-		}
-		if gt {
-			return isGt
-		}
-
-		return !isGt
-	})
 }
