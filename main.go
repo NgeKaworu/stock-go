@@ -56,7 +56,7 @@ func main() {
 	}
 	total := float64(*pb + *pe + *peg + *roe)
 	// 从小到大排序(不稳定排序)
-	stock.WeightSort(weights, s, total)
+	stock.WeightSort(weights, &s, total)
 	fmt.Println("\n从小到大排序结果:")
 	fmt.Println(s)
 	// log.Println(discount)

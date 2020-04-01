@@ -44,15 +44,15 @@ func CusSort(s interface{}, key string, gt bool) {
 }
 
 // WeightSort 权重排序
-func WeightSort(weights map[string][]interface{}, s []Stock, total float64) {
+func WeightSort(weights map[string][]interface{}, s *[]Stock, total float64) {
 	// log.Println(weight, s)
-	l := len(s)
+	l := len(*s)
 	for k, v := range weights {
 		weight, gt := v[0], v[1]
 		rate := float64(weight.(int)) / total
-		CusSort(s, k, gt.(bool))
+		CusSort(&s, k, gt.(bool))
 		for i := 0; i < l; i++ {
-			s[i].Grade += float64(l-i) * rate
+			(*s)[i].Grade += float64(l-i) * rate
 		}
 	}
 
