@@ -49,16 +49,16 @@ func main() {
 	fmt.Println("初始化结果:\n", s)
 
 	weights := map[string][]interface{}{
-		"pb":  {*pb, false},
-		"pe":  {*pe, true},
-		"peg": {*peg, true},
-		"roe": {*roe, true},
+		"PB":  {*pb, false},
+		"PE":  {*pe, true},
+		"PEG": {*peg, true},
+		"ROE": {*roe, true},
 	}
 	total := float64(*pb + *pe + *peg + *roe)
 	// 从小到大排序(不稳定排序)
 	stock.WeightSort(weights, &s, total)
 	fmt.Println("\n从小到大排序结果:")
-	fmt.Println(s)
+	fmt.Printf("%+v\n", s)
 	// log.Println(discount)
 	// stocks := utils.Merge(constants.Ss50, constants.Hs300)
 	// for k, v := range stocks {
