@@ -14,8 +14,8 @@ func main() {
 		dbinit = flag.Bool("i", false, "init database flag")
 		mongo  = flag.String("m", "mongodb://localhost:27017", "mongod addr flag")
 		db     = flag.String("db", "stock", "database name")
-		pb     = flag.Int("pb", 0, "pb weight")
-		pe     = flag.Int("pe", 0, "pe weight")
+		pb     = flag.Int("pb", 2, "pb weight")
+		pe     = flag.Int("pe", 8, "pe weight")
 		peg    = flag.Int("peg", 0, "peg weight")
 		roe    = flag.Int("roe", 0, "roe weight")
 	)
@@ -48,14 +48,15 @@ func main() {
 	s[4] = stock.Stock{Code: "01", Bourse: "sh", BourseCode: "01", Enterprise: nil, CurrentInfo: nil, Classify: "nil", PB: 50.0, PE: 10.0, PEG: 30.0, ROE: 35.0, DPE: 85.0, DCE: 41.0, AAGR: 45.0, Grade: 0}
 	fmt.Println("初始化结果:\n", s)
 
-	weight := map[string][]interface{}{
+	weights := map[string][]interface{}{
 		"pb":  {*pb, false},
 		"pe":  {*pe, true},
 		"peg": {*peg, true},
 		"roe": {*roe, true},
 	}
+	total := float64(*pb + *pe + *peg + *roe)
 	// 从小到大排序(不稳定排序)
-	stock.WeightSort(weight, &s)
+	stock.WeightSort(weights, s, total)
 	fmt.Println("\n从小到大排序结果:")
 	fmt.Println(s)
 	// log.Println(discount)

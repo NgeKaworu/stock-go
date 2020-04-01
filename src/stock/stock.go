@@ -1,7 +1,6 @@
 package stock
 
 import (
-	"log"
 	"reflect"
 	"sort"
 	"stock/src/models"
@@ -22,7 +21,7 @@ type Stock struct {
 	DPE         float64              //动态利润估值
 	DCE         float64              //动态现金估值
 	AAGR        float64              //平均年增长率
-	Grade       int                  //评分
+	Grade       float64              //评分
 }
 
 // CusSort 自定义 排序
@@ -45,7 +44,16 @@ func CusSort(s interface{}, key string, gt bool) {
 }
 
 // WeightSort 权重排序
-func WeightSort(weight map[string][]interface{}, s *[]Stock) {
-	log.Println(weight, s)
+func WeightSort(weights map[string][]interface{}, s []Stock, total float64) {
+	// log.Println(weight, s)
+	l := len(s)
+	for k, v := range weights {
+		weight, gt := v[0], v[1]
+		rate := float64(weight.(int)) / total
+		CusSort(s, k, gt.(bool))
+		for i := 0; i < l; i++ {
+			s[i].Grade += float64(l-i) * rate
+		}
+	}
 
 }
