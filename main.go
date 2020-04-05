@@ -1,16 +1,17 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"log"
 	"os"
+	"reflect"
 	"stock/src/dbengin"
 )
 
 type Some struct {
-	I int
+	I int     `bson:"test_one"`
 	B float32 `bson:"-"`
+	P *int    `bson:"test_ponint,omitempty"`
 }
 
 func main() {
@@ -18,7 +19,7 @@ func main() {
 		dbinit = flag.Bool("i", false, "init database flag")
 		mongo  = flag.String("m", "mongodb://localhost:27017", "mongod addr flag")
 		db     = flag.String("db", "stock", "database name")
-		// pb     = flag.Int("pb", 2, "pb weight")
+		pb     = flag.Int("pb", 2, "pb weight")
 		// pe     = flag.Int("pe", 5, "pe weight")
 		// peg    = flag.Int("peg", 6, "peg weight")
 		// roe    = flag.Int("roe", 8, "roe weight")
@@ -30,6 +31,7 @@ func main() {
 
 	log.SetOutput(os.Stdout)
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+	log.Println(*pb)
 
 	eng := dbengin.NewDbEngine()
 	err := eng.Open(*mongo, *db, *dbinit)
@@ -86,13 +88,13 @@ func main() {
 
 	// stock.WeightSort(weights, &ss, total)
 
-	d := eng.GetColl("test")
+	// d := eng.GetColl("test")
 
-	s := &Some{
-		I: 32,
-		B: 32.0,
-	}
+	s := Some{I: 32}
 
-	ret, err := d.InsertOne(context.Background(), s)
-	log.Println(ret, err)
+	// i := 32
+	// v = &i
+	rv := reflect.ValueOf(s)
+
+	log.Println(rv, rv.IsValid(), rv.IsZero())
 }
