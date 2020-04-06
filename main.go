@@ -13,12 +13,6 @@ import (
 	"time"
 )
 
-type Some struct {
-	I int     `bson:"test_one"`
-	B float32 `bson:"-"`
-	P *int    `bson:"test_ponint,omitempty"`
-}
-
 func main() {
 	var (
 		dbinit = flag.Bool("i", false, "init database flag")
@@ -69,7 +63,7 @@ func main() {
 
 	l := len(stocks)
 	allStock := make([]interface{}, l)
-	allReport := make([]interface{})
+	allReport := make([]interface{}, 0)
 	allMarket := make([]interface{}, l)
 	now := time.Now().Local()
 	for k, v := range stocks {
