@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"reflect"
 	"stock/src/models"
-	"time"
 
 	"strings"
 )
@@ -31,9 +30,6 @@ func (s *Stock) FetchCurrentInfo() {
 	for k, v := range strArr[1 : len(strArr)-2] {
 		st.Field(k).SetString(v)
 	}
-
-	ci.Code = s.Code
-	ci.CreateDate = time.Now().Local()
 
 	s.CurrentInfo = ci
 }

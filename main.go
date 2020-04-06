@@ -7,6 +7,7 @@ import (
 	"os"
 	"stock/src/constants"
 	"stock/src/dbengin"
+	"stock/src/models"
 	"stock/src/stock"
 	"stock/src/utils"
 	"time"
@@ -68,6 +69,8 @@ func main() {
 
 	l := len(stocks)
 	allStock := make([]interface{}, l)
+	allReport := make([]interface{})
+	allMarket := make([]interface{}, l)
 	now := time.Now().Local()
 	for k, v := range stocks {
 		s := &stock.Stock{
@@ -89,14 +92,38 @@ func main() {
 		s.Discount(discount)
 		s.CreateDate = now
 
+		s.CurrentInfo.Code = s.Code
+		s.CurrentInfo.CreateDate = now
+
 		allStock = append(allStock, *s)
+		allMarket = append(allMarket, s.CurrentInfo)
+
+		for _, enterprise := range *s.Enterprise {
+			enterprise.CreateDate = time.Now().Local()
+			enterprise.Code = s.Code
+			allReport = append(allReport, enterprise)
+		}
+
 	}
 
 	stock.WeightSort(weights, &allStock, total)
 
 	tStock := eng.GetColl(stock.TStock)
-
 	if ret, err := tStock.InsertMany(context.Background(), allStock); err != nil {
+		log.Println(err)
+	} else {
+		log.Println(ret)
+	}
+
+	tCurrentInfo := eng.GetColl(models.TCurrentInfo)
+	if ret, err := tCurrentInfo.InsertMany(context.Background(), allMarket); err != nil {
+		log.Println(err)
+	} else {
+		log.Println(ret)
+	}
+
+	tEnterpriseIndicator := eng.GetColl(models.TEnterpriseIndicator)
+	if ret, err := tEnterpriseIndicator.InsertMany(context.Background(), allReport); err != nil {
 		log.Println(err)
 	} else {
 		log.Println(ret)
