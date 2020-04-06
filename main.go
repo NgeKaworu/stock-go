@@ -4,7 +4,6 @@ import (
 	"flag"
 	"log"
 	"os"
-	"reflect"
 	"stock/src/dbengin"
 )
 
@@ -90,11 +89,14 @@ func main() {
 
 	// d := eng.GetColl("test")
 
-	s := Some{I: 32}
-
-	// i := 32
-	// v = &i
-	rv := reflect.ValueOf(s)
-
-	log.Println(rv, rv.IsValid(), rv.IsZero())
+	// s := Some{I: 32}
+	// //
+	// mapper := maplization.NewMapper(nil)
+	// mm := mapper.Conver2Map(s)
+	// // i := 32
+	// // v = &i
+	// rv := reflect.ValueOf(s)
+	// //
+	// log.Println(rv, rv.IsValid(), rv.IsZero())
+	// log.Println(mm)
 }
