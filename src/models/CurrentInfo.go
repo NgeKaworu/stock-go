@@ -44,4 +44,5 @@ type CurrentInfo struct {
 	Time                  string             `json:"time,omitempty" bson:"time,omitempty"`                                     //时间
 	ID                    primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`                                        //id
 	CreateDate            time.Time          `json:"createDate" bson:"create_date"`                                            //创建时间
+	Code                  string             `json:"code,omitempty" bson:"code,omitempty"`                                     //股票代号
 }

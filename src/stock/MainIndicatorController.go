@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"stock/src/models"
+	"time"
 )
 
 // FetchMainIndicator 获取主要指标
@@ -30,6 +31,11 @@ func (s *Stock) FetchMainIndicator() {
 	var result models.MainIndicatorRes
 
 	err = json.Unmarshal(body, &result)
+
+	for _, v := range result.Result.Enterprise {
+		v.CreateDate = time.Now().Local()
+		v.Code = s.Code
+	}
 
 	s.Enterprise = &result.Result.Enterprise
 

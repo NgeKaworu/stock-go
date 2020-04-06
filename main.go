@@ -67,7 +67,7 @@ func main() {
 	stocks := utils.Merge(constants.Ss50, constants.Hs300)
 
 	l := len(stocks)
-	ss := make([]interface{}, l)
+	allStock := make([]interface{}, l)
 	now := time.Now().Local()
 	for k, v := range stocks {
 		s := &stock.Stock{
@@ -89,13 +89,17 @@ func main() {
 		s.Discount(discount)
 		s.CreateDate = now
 
-		ss = append(ss, *s)
+		allStock = append(allStock, *s)
 	}
 
-	stock.WeightSort(weights, &ss, total)
+	stock.WeightSort(weights, &allStock, total)
 
 	tStock := eng.GetColl(stock.TStock)
 
-	ret, err := tStock.InsertMany(context.Background(), ss)
+	if ret, err := tStock.InsertMany(context.Background(), allStock); err != nil {
+		log.Println(err)
+	} else {
+		log.Println(ret)
+	}
 
 }
