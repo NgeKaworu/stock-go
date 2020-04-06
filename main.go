@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"log"
 	"os"
@@ -8,6 +9,7 @@ import (
 	"stock/src/dbengin"
 	"stock/src/stock"
 	"stock/src/utils"
+	"time"
 )
 
 type Some struct {
@@ -65,8 +67,8 @@ func main() {
 	stocks := utils.Merge(constants.Ss50, constants.Hs300)
 
 	l := len(stocks)
-	ss := make([]stock.Stock, l)
-
+	ss := make([]interface{}, l)
+	now := time.Now().Local()
 	for k, v := range stocks {
 		s := &stock.Stock{
 			Code:       k,
@@ -85,6 +87,7 @@ func main() {
 		s.FetchClassify()
 		s.Calc()
 		s.Discount(discount)
+		s.CreateDate = now
 
 		ss = append(ss, *s)
 	}
@@ -92,5 +95,7 @@ func main() {
 	stock.WeightSort(weights, &ss, total)
 
 	tStock := eng.GetColl(stock.TStock)
+
+	ret, err := tStock.InsertMany(context.Background(), ss)
 
 }
