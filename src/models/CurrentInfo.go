@@ -1,9 +1,13 @@
 package models
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
 // TCurrentInfo 表名
-const TCurrentInfo = "tcurrent_info"
+const TCurrentInfo = "t_current_info"
 
 // CurrentInfo 当前股票信息
 type CurrentInfo struct {
@@ -38,5 +42,6 @@ type CurrentInfo struct {
 	Sell5Price            string             `json:"sell5Price,omitempty" bson:"sell_5_price,omitempty"`                       //卖5报价
 	Date                  string             `json:"date,omitempty" bson:"date,omitempty"`                                     //日期
 	Time                  string             `json:"time,omitempty" bson:"time,omitempty"`                                     //时间
-	ID                    primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	ID                    primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`                                        //id
+	CreateDate            time.Time          `json:"createDate" bson:"create_date"`                                            //创建时间
 }

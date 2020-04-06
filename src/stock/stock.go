@@ -4,24 +4,32 @@ import (
 	"reflect"
 	"sort"
 	"stock/src/models"
+	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
+
+// TStock 表名
+const TStock = "t_stock"
 
 // Stock 股票基本结构
 type Stock struct {
-	Code        string               `bson:"code"`        //股票代码
-	Bourse      string               `bson:"bourse"`      //交易所名字
-	BourseCode  string               `bson:"bourse_code"` //交易所代码
-	Enterprise  *[]models.Enterprise `bson:"-"`           //年报列表
-	CurrentInfo *models.CurrentInfo  `bson:"-"`           //当前信息
-	Classify    string               `bson:"classify"`    //板块
-	PB          float64              `bson:"pb"`          //市净率
-	PE          float64              `bson:"pe"`          //市盈率
-	PEG         float64              `bson:"peg"`         //市盈增长比
-	ROE         float64              `bson:"roe"`         //净资产收益率
-	DPE         float64              `bson:"dpe"`         //动态利润估值
-	DCE         float64              `bson:"dce"`         //动态现金估值
-	AAGR        float64              `bson:"aagr"`        //平均年增长率
-	Grade       float64              `bson:"grade"`       //评分
+	ID          primitive.ObjectID   `json:"id" bson:"_id"`                 //id
+	Code        string               `json:"code" bson:"code"`              //股票代码
+	Bourse      string               `json:"bourse" bson:"bourse"`          //交易所名字
+	BourseCode  string               `json:"bourseCode" bson:"bourse_code"` //交易所代码
+	Enterprise  *[]models.Enterprise `json:"enterprise" bson:"-"`           //年报列表
+	CurrentInfo *models.CurrentInfo  `json:"currentInfo" bson:"-"`          //当前信息
+	Classify    string               `json:"classify" bson:"classify"`      //板块
+	PB          float64              `json:"PB" bson:"pb"`                  //市净率
+	PE          float64              `json:"PE" bson:"pe"`                  //市盈率
+	PEG         float64              `json:"PEG" bson:"peg"`                //市盈增长比
+	ROE         float64              `json:"ROE" bson:"roe"`                //净资产收益率
+	DPE         float64              `json:"DPE" bson:"dpe"`                //动态利润估值
+	DCE         float64              `json:"DCE" bson:"dce"`                //动态现金估值
+	AAGR        float64              `json:"AAGR" bson:"aagr"`              //平均年增长率
+	Grade       float64              `json:"grade" bson:"grade"`            //评分
+	CreateDate  time.Time            `json:"createDate" bson:"create_date"` //创建时间
 }
 
 // CusSort 自定义 排序
