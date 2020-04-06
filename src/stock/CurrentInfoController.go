@@ -45,9 +45,20 @@ func (s *Stock) FetchClassify() {
 	result := map[string]interface{}{}
 	err = json.Unmarshal(body, &result)
 
-	s.Classify = result["Result"].(map[string]interface{})["TiCaiXiangQingList"].([]interface{})[0].(map[string]interface{})["KeyWord"].(string)
-
 	if err != nil {
 		log.Println(err)
 	}
+
+	if r, ok := result["Result"].(map[string]interface{}); ok {
+		if tiCaiXiangQingList, ok := r["TiCaiXiangQingList"]; ok {
+			for _, tiCaiXiangQing := range tiCaiXiangQingList.([]interface{}) {
+				if keyWord, ok := tiCaiXiangQing.(map[string]interface{})["KeyWord"].(string); ok {
+					s.Classify = keyWord
+				}
+				break
+			}
+		}
+
+	}
+
 }

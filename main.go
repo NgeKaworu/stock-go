@@ -30,7 +30,6 @@ func main() {
 
 	log.SetOutput(os.Stdout)
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
-	log.Println(*pb)
 
 	eng := dbengin.NewDbEngine()
 	err := eng.Open(*mongo, *db, *dbinit)
@@ -79,6 +78,7 @@ func main() {
 		default:
 			break
 		}
+		log.Println("current code: " + k)
 		s.FetchCurrentInfo()
 		s.FetchMainIndicator()
 		s.FetchClassify()

@@ -53,7 +53,7 @@ func CusSort(s interface{}, key string, gt bool) {
 
 // WeightSort 权重排序
 func WeightSort(weights map[string][]interface{}, s *[]interface{}, total float64) {
-	// CusSort(*s, "PB", true)
+
 	l := len(*s)
 
 	for k, v := range weights {

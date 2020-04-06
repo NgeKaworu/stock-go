@@ -111,10 +111,10 @@ func (s *Stock) CalcDCE(r float64) {
 	// 每股经营现金流(元)
 	mgjyxjje, err := strconv.ParseFloat((*s.Enterprise)[0].Mgjyxjje, 64)
 
-	s.DCE = mgjyxjje / (r - s.AAGR)
-
 	if err != nil {
 		log.Println(err)
 	}
-}
 
+	s.DCE = mgjyxjje / (r - s.AAGR)
+
+}
