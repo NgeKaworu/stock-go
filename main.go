@@ -5,9 +5,11 @@ import (
 	"flag"
 	"log"
 	"os"
+	"stock/src/constants"
 	"stock/src/dbengin"
 	"stock/src/models"
 	"stock/src/stock"
+	"stock/src/utils"
 	"time"
 )
 
@@ -56,11 +58,7 @@ func main() {
 	}
 	total := float64(*pb + *pe + *peg + *roe + *dpe + *dce + *aagr)
 
-	// stocks := utils.Merge(constants.Ss50, constants.Hs300)
-
-	stocks := map[string]string{
-		"600000": "01", //浦发银行
-	}
+	stocks := utils.Merge(constants.Ss50, constants.Hs300)
 
 	allStock := make([]stock.Stock, 0)
 	allReport := make([]interface{}, 0)
