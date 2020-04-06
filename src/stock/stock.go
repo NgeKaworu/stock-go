@@ -14,22 +14,22 @@ const TStock = "t_stock"
 
 // Stock 股票基本结构
 type Stock struct {
-	ID          primitive.ObjectID   `json:"id" bson:"_id"`                 //id
-	Code        string               `json:"code" bson:"code"`              //股票代码
-	Bourse      string               `json:"bourse" bson:"bourse"`          //交易所名字
-	BourseCode  string               `json:"bourseCode" bson:"bourse_code"` //交易所代码
-	Enterprise  *[]models.Enterprise `json:"enterprise" bson:"-"`           //年报列表
-	CurrentInfo *models.CurrentInfo  `json:"currentInfo" bson:"-"`          //当前信息
-	Classify    string               `json:"classify" bson:"classify"`      //板块
-	PB          float64              `json:"PB" bson:"pb"`                  //市净率
-	PE          float64              `json:"PE" bson:"pe"`                  //市盈率
-	PEG         float64              `json:"PEG" bson:"peg"`                //市盈增长比
-	ROE         float64              `json:"ROE" bson:"roe"`                //净资产收益率
-	DPE         float64              `json:"DPE" bson:"dpe"`                //动态利润估值
-	DCE         float64              `json:"DCE" bson:"dce"`                //动态现金估值
-	AAGR        float64              `json:"AAGR" bson:"aagr"`              //平均年增长率
-	Grade       float64              `json:"grade" bson:"grade"`            //评分
-	CreateDate  time.Time            `json:"createDate" bson:"create_date"` //创建时间
+	ID          *primitive.ObjectID  `json:"id,omitempty" bson:"_id,omitempty"`                 //id
+	Code        string               `json:"code,omitempty" bson:"code,omitempty"`              //股票代码
+	Bourse      string               `json:"bourse,omitempty" bson:"bourse,omitempty"`          //交易所名字
+	BourseCode  string               `json:"bourseCode,omitempty" bson:"bourse_code,omitempty"` //交易所代码
+	Enterprise  *[]models.Enterprise `json:"enterprise,omitempty" bson:"-,omitempty"`           //年报列表
+	CurrentInfo *models.CurrentInfo  `json:"currentInfo,omitempty" bson:"-,omitempty"`          //当前信息
+	Classify    string               `json:"classify,omitempty" bson:"classify,omitempty"`      //板块
+	PB          float64              `json:"PB,omitempty" bson:"pb,omitempty"`                  //市净率
+	PE          float64              `json:"PE,omitempty" bson:"pe,omitempty"`                  //市盈率
+	PEG         float64              `json:"PEG,omitempty" bson:"peg,omitempty"`                //市盈增长比
+	ROE         float64              `json:"ROE,omitempty" bson:"roe,omitempty"`                //净资产收益率
+	DPE         float64              `json:"DPE,omitempty" bson:"dpe,omitempty"`                //动态利润估值
+	DCE         float64              `json:"DCE,omitempty" bson:"dce,omitempty"`                //动态现金估值
+	AAGR        float64              `json:"AAGR,omitempty" bson:"aagr,omitempty"`              //平均年增长率
+	Grade       float64              `json:"grade,omitempty" bson:"grade,omitempty"`            //评分
+	CreateDate  time.Time            `json:"createDate,omitempty" bson:"create_date,omitempty"` //创建时间
 }
 
 // CusSort 自定义 排序
@@ -52,7 +52,7 @@ func CusSort(s interface{}, key string, gt bool) {
 }
 
 // WeightSort 权重排序
-func WeightSort(weights map[string][]interface{}, s *[]interface{}, total float64) {
+func WeightSort(weights map[string][]interface{}, s *[]Stock, total float64) {
 
 	l := len(*s)
 
@@ -61,7 +61,7 @@ func WeightSort(weights map[string][]interface{}, s *[]interface{}, total float6
 		rate := float64(weight.(int)) / total
 		CusSort(*s, k, gt.(bool))
 		for i := 0; i < l; i++ {
-			(*s)[i].(*Stock).Grade += float64(l-i) * rate
+			(*s)[i].Grade += float64(l-i) * rate
 		}
 	}
 	CusSort(*s, "Grade", true)

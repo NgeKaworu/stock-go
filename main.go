@@ -5,11 +5,9 @@ import (
 	"flag"
 	"log"
 	"os"
-	"stock/src/constants"
 	"stock/src/dbengin"
 	"stock/src/models"
 	"stock/src/stock"
-	"stock/src/utils"
 	"time"
 )
 
@@ -58,12 +56,15 @@ func main() {
 	}
 	total := float64(*pb + *pe + *peg + *roe + *dpe + *dce + *aagr)
 
-	stocks := utils.Merge(constants.Ss50, constants.Hs300)
+	// stocks := utils.Merge(constants.Ss50, constants.Hs300)
 
-	l := len(stocks)
-	allStock := make([]interface{}, l)
+	stocks := map[string]string{
+		"600000": "01", //浦发银行
+	}
+
+	allStock := make([]stock.Stock, 0)
 	allReport := make([]interface{}, 0)
-	allMarket := make([]interface{}, l)
+	allMarket := make([]interface{}, 0)
 	now := time.Now().Local()
 	for k, v := range stocks {
 		s := &stock.Stock{
@@ -90,7 +91,7 @@ func main() {
 		s.CurrentInfo.CreateDate = now
 
 		allStock = append(allStock, *s)
-		allMarket = append(allMarket, s.CurrentInfo)
+		allMarket = append(allMarket, *s.CurrentInfo)
 
 		for _, enterprise := range *s.Enterprise {
 			enterprise.CreateDate = time.Now().Local()
@@ -102,8 +103,17 @@ func main() {
 
 	stock.WeightSort(weights, &allStock, total)
 
+	insertStock := make([]interface{}, 0)
+	for _, v := range allStock {
+		insertStock = append(insertStock, v)
+	}
+
+	log.Printf("%+v\n", insertStock)
+	log.Printf("%+v\n", allReport)
+	log.Printf("%+v\n", allMarket)
+
 	tStock := eng.GetColl(stock.TStock)
-	if ret, err := tStock.InsertMany(context.Background(), allStock); err != nil {
+	if ret, err := tStock.InsertMany(context.Background(), insertStock); err != nil {
 		log.Println(err)
 	} else {
 		log.Println(ret)
