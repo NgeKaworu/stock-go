@@ -108,10 +108,6 @@ func main() {
 		insertStock = append(insertStock, v)
 	}
 
-	log.Printf("%+v\n", insertStock)
-	log.Printf("%+v\n", allReport)
-	log.Printf("%+v\n", allMarket)
-
 	tStock := eng.GetColl(stock.TStock)
 	if ret, err := tStock.InsertMany(context.Background(), insertStock); err != nil {
 		log.Println(err)
