@@ -12,6 +12,7 @@ import (
 
 // FetchEnterprise 爬年报+写库
 func (d *DbEngine) FetchEnterprise() (string, error) {
+
 	stocks := utils.Merge(constants.Ss50, constants.Hs300)
 	allReport := make([]interface{}, 0)
 	now := time.Now().Local()
@@ -45,7 +46,13 @@ func (d *DbEngine) FetchEnterprise() (string, error) {
 	}
 
 	tEnterpriseIndicator := d.GetColl(models.TEnterpriseIndicator)
-	_, err := tEnterpriseIndicator.InsertMany(context.Background(), allReport)
+	_, err := tEnterpriseIndicator.DeleteMany(context.Background(), nil)
+
+	if err != nil {
+		return "删除错误", err
+	}
+
+	_, err = tEnterpriseIndicator.InsertMany(context.Background(), allReport)
 
 	if err != nil {
 		return "错误", err
