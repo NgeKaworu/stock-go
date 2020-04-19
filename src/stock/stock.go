@@ -14,21 +14,21 @@ const TStock = "t_stock"
 
 // Stock 股票基本结构
 type Stock struct {
-	ID          *primitive.ObjectID  `json:"id,omitempty" bson:"_id,omitempty"` //id
-	Code        string               `json:"code" bson:"code"`                  //股票代码
-	Bourse      string               `json:"bourse" bson:"bourse"`              //交易所名字
-	BourseCode  string               `json:"bourseCode" bson:"bourse_code"`     //交易所代码
-	Enterprise  *[]models.Enterprise `json:"enterprise" bson:"-"`               //年报列表
-	CurrentInfo *models.CurrentInfo  `json:"currentInfo" bson:"-"`              //当前信息
-	PB          float64              `json:"PB" bson:"pb"`                      //市净率
-	PE          float64              `json:"PE" bson:"pe"`                      //市盈率
-	PEG         float64              `json:"PEG" bson:"peg"`                    //市盈增长比
-	ROE         float64              `json:"ROE" bson:"roe"`                    //净资产收益率
-	DPE         float64              `json:"DPE" bson:"dpe"`                    //动态利润估值
-	DCE         float64              `json:"DCE" bson:"dce"`                    //动态现金估值
-	AAGR        float64              `json:"AAGR" bson:"aagr"`                  //平均年增长率
-	Grade       float64              `json:"grade" bson:"grade"`                //评分
-	CreateDate  time.Time            `json:"createDate" bson:"create_date"`     //创建时间
+	ID          *primitive.ObjectID  `json:"id,omitempty" bson:"_id,omitempty"`                   //id
+	Code        string               `json:"code" bson:"code"`                                    //股票代码
+	Bourse      *string              `json:"bourse,omitempty" bson:"bourse,omitempty"`            //交易所名字
+	BourseCode  *string              `json:"bourseCode,omitempty" bson:"bourse_code,omitempty"`   //交易所代码
+	Enterprise  *[]models.Enterprise `json:"enterprise,omitempty" bson:"enterprise,omitempty"`    //年报列表
+	CurrentInfo *models.CurrentInfo  `json:"currentInfo,omitempty" bson:"current_info,omitempty"` //当前信息
+	PB          float64              `json:"PB" bson:"pb"`                                        //市净率
+	PE          float64              `json:"PE" bson:"pe"`                                        //市盈率
+	PEG         float64              `json:"PEG" bson:"peg"`                                      //市盈增长比
+	ROE         float64              `json:"ROE" bson:"roe"`                                      //净资产收益率
+	DPE         float64              `json:"DPE" bson:"dpe"`                                      //动态利润估值
+	DCE         float64              `json:"DCE" bson:"dce"`                                      //动态现金估值
+	AAGR        float64              `json:"AAGR" bson:"aagr"`                                    //平均年增长率
+	Grade       float64              `json:"grade" bson:"grade"`                                  //评分
+	CreateDate  time.Time            `json:"createDate" bson:"create_date"`                       //创建时间
 }
 
 // TWeight 权重表名
@@ -46,17 +46,19 @@ type Weights struct {
 func NewStock(code, bourseCode string) *Stock {
 	s := &Stock{
 		Code:       code,
-		BourseCode: bourseCode,
+		BourseCode: &bourseCode,
 	}
+	var bourse string
 	switch bourseCode {
 	case "01":
-		s.Bourse = "sh"
+		bourse = "sh"
 	case "02":
-		s.Bourse = "sz"
+		bourse = "sz"
 	default:
 		break
 	}
 
+	s.Bourse = &bourse
 	return s
 }
 

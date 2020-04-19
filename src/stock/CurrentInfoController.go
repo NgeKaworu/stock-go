@@ -16,7 +16,7 @@ import (
 
 // FetchCurrentInfo 获取当前值
 func (s *Stock) FetchCurrentInfo() {
-	params := s.Bourse + s.Code
+	params := *s.Bourse + s.Code
 	resp, err := http.Get("http://hq.sinajs.cn/list=" + params)
 	if err != nil {
 		panic(err)
@@ -49,7 +49,7 @@ func (s *Stock) FetchCurrentInfo() {
 
 // FetchClassify 获取分类(板块)
 func (s *Stock) FetchClassify() {
-	params := s.Code + s.BourseCode
+	params := s.Code + *s.BourseCode
 	resp, err := http.Get("https://emh5.eastmoney.com/api/CaoPanBiDu/GetCaoPanBiDuPart2Get?fc=" + params)
 
 	body, err := ioutil.ReadAll(resp.Body)

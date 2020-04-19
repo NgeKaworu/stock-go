@@ -127,7 +127,30 @@ func (d *DbEngine) Discount(ctx context.Context, args DiscountQuery) (string, er
 	m, err := d.Mapper.Conver2Map(args)
 
 	if err != nil {
-		return "失败", err
+		return "Conver2Map 失败", err
+	}
+
+	tInfo := d.GetColl(models.TCurrentInfo)
+
+	query := []bson.M{
+		{"$match": bson.M{"create_date": m["create_date"]}},
+		{"$project": bson.M{"_id": 0, "current_info": "$$ROOT"}},
+	}
+
+	re, err := tInfo.Aggregate(ctx, query, options.Aggregate())
+	if err != nil {
+		return "Aggregate 失败", err
+	}
+
+	stocks := make([]*stock.Stock, 0)
+	err = re.All(ctx, &stocks)
+
+	if err != nil {
+		return "All 失败", err
+	}
+
+	for _, v := range stocks {
+		log.Printf("%T %v %T %v", v.CurrentInfo, v.CurrentInfo, v, v)
 	}
 
 	log.Printf("%+v\n", m)

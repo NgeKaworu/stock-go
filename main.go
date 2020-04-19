@@ -106,14 +106,6 @@ func main() {
 	// 	s.CurrentInfo.CreateDate = now
 
 	// 	allStock = append(allStock, *s)
-	// 	allMarket = append(allMarket, *s.CurrentInfo)
-
-	// 	for _, enterprise := range *s.Enterprise {
-	// 		enterprise.CreateDate = time.Now().Local()
-	// 		enterprise.Code = s.Code
-	// 		allReport = append(allReport, enterprise)
-	// 	}
-
 	// }
 
 	// stock.WeightSort(weights, &allStock, total)
@@ -125,20 +117,6 @@ func main() {
 
 	// tStock := eng.GetColl(stock.TStock)
 	// if ret, err := tStock.InsertMany(context.Background(), insertStock); err != nil {
-	// 	log.Println(err)
-	// } else {
-	// 	log.Println(ret)
-	// }
-
-	// tCurrentInfo := eng.GetColl(models.TCurrentInfo)
-	// if ret, err := tCurrentInfo.InsertMany(context.Background(), allMarket); err != nil {
-	// 	log.Println(err)
-	// } else {
-	// 	log.Println(ret)
-	// }
-
-	// tEnterpriseIndicator := eng.GetColl(models.TEnterpriseIndicator)
-	// if ret, err := tEnterpriseIndicator.InsertMany(context.Background(), allReport); err != nil {
 	// 	log.Println(err)
 	// } else {
 	// 	log.Println(ret)

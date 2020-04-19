@@ -11,7 +11,7 @@ import (
 
 // FetchMainIndicator 获取主要指标
 func (s *Stock) FetchMainIndicator() {
-	curIndicator := &models.MainIndicatorReq{Fc: s.Code + s.BourseCode, CorpType: "4", LatestCount: 12, ReportDateType: 0}
+	curIndicator := &models.MainIndicatorReq{Fc: s.Code + *s.BourseCode, CorpType: "4", LatestCount: 12, ReportDateType: 0}
 
 	reqBody, err := json.Marshal(curIndicator)
 
