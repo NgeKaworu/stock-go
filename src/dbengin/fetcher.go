@@ -65,8 +65,8 @@ func (d *DbEngine) FetchCurrent() (string, error) {
 		go func(key, val string) {
 			s := stock.NewStock(key, val)
 			log.Println("FetchCurrent current code: " + key)
-
 			s.FetchCurrentInfo()
+			s.FetchClassify()
 			s.CurrentInfo.Code = s.Code
 			s.CurrentInfo.CreateDate = now
 			allMarket = append(allMarket, *s.CurrentInfo)
@@ -113,4 +113,30 @@ func (d *DbEngine) FetchInfoTime(ctx context.Context) ([]*graphql.Time, error) {
 
 	}
 	return gqlTimes, nil
+}
+
+// DiscountQuery 估值入参结构
+type DiscountQuery struct {
+	DiscountRate float64
+	CreateDate   string
+	Weights      []Weights
+}
+
+// Weights 权重结构
+type Weights struct {
+	Name   string
+	Weight float64
+	Gt     bool
+}
+
+// Discount 计算估值
+func (d *DbEngine) Discount(ctx context.Context, args DiscountQuery) (string, error) {
+	m, err := d.Mapper.Conver2Map(args)
+
+	if err != nil {
+		return "失败", err
+	}
+
+	log.Printf("%+v\n", m)
+	return "成功", nil
 }

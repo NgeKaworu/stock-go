@@ -36,10 +36,6 @@ func (s *Stock) FetchCurrentInfo() {
 
 	st := reflect.ValueOf(ci).Elem()
 	for k, v := range strArr[:len(strArr)-3] {
-		if k == 0 {
-			s.Name = strings.Split(v, "\"")[1]
-			continue
-		}
 		st.Field(k).SetString(v)
 
 	}
@@ -66,7 +62,7 @@ func (s *Stock) FetchClassify() {
 		if tiCaiXiangQingList, ok := r["TiCaiXiangQingList"]; ok {
 			for _, tiCaiXiangQing := range tiCaiXiangQingList.([]interface{}) {
 				if keyWord, ok := tiCaiXiangQing.(map[string]interface{})["KeyWord"].(string); ok {
-					s.Classify = keyWord
+					s.CurrentInfo.Classify = keyWord
 				}
 				break
 			}

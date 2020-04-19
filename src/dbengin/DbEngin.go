@@ -3,10 +3,12 @@ package dbengin
 import (
 	"context"
 	"log"
+	"stock/src/formatter"
 	"stock/src/models"
 	"stock/src/stock"
 	"time"
 
+	"github.com/NgeKaworu/maplization"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -18,11 +20,15 @@ import (
 type DbEngine struct {
 	MgEngine *mongo.Client //关系型数据库引擎
 	Mdb      string
+	Mapper   *maplization.Maplization
 }
 
 // NewDbEngine 实例工厂
 func NewDbEngine() *DbEngine {
-	return &DbEngine{}
+	mapper := maplization.NewMapper(formatter.Formatter)
+	return &DbEngine{
+		Mapper: mapper,
+	}
 }
 
 // Open 开启连接池
@@ -70,9 +76,7 @@ func (d *DbEngine) Open(mg, mdb string, initdb bool) error {
 		stocks := session.Database(mdb).Collection(stock.TStock)
 		indexView := stocks.Indexes()
 		_, err = indexView.CreateMany(context.Background(), []mongo.IndexModel{
-			{Keys: bsonx.Doc{bsonx.Elem{Key: "name", Value: bsonx.Int32(1)}}},
 			{Keys: bsonx.Doc{bsonx.Elem{Key: "code", Value: bsonx.Int32(1)}}},
-			{Keys: bsonx.Doc{bsonx.Elem{Key: "classify", Value: bsonx.Int32(1)}}},
 			{Keys: bsonx.Doc{bsonx.Elem{Key: "pb", Value: bsonx.Int32(1)}}},
 			{Keys: bsonx.Doc{bsonx.Elem{Key: "pe", Value: bsonx.Int32(1)}}},
 			{Keys: bsonx.Doc{bsonx.Elem{Key: "peg", Value: bsonx.Int32(1)}}},
@@ -91,12 +95,8 @@ func (d *DbEngine) Open(mg, mdb string, initdb bool) error {
 		enterprise := session.Database(mdb).Collection(models.TEnterpriseIndicator)
 		indexView = enterprise.Indexes()
 		_, err = indexView.CreateMany(context.Background(), []mongo.IndexModel{
-			{
-				Keys: bsonx.Doc{bsonx.Elem{Key: "create_date", Value: bsonx.Int32(-1)}},
-			},
-			{
-				Keys: bsonx.Doc{bsonx.Elem{Key: "code", Value: bsonx.Int32(1)}},
-			},
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "create_date", Value: bsonx.Int32(-1)}}},
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "code", Value: bsonx.Int32(1)}}},
 		})
 		if err != nil {
 			log.Println(err)
@@ -106,12 +106,10 @@ func (d *DbEngine) Open(mg, mdb string, initdb bool) error {
 		info := session.Database(mdb).Collection(models.TCurrentInfo)
 		indexView = info.Indexes()
 		_, err = indexView.CreateMany(context.Background(), []mongo.IndexModel{
-			{
-				Keys: bsonx.Doc{bsonx.Elem{Key: "create_date", Value: bsonx.Int32(-1)}},
-			},
-			{
-				Keys: bsonx.Doc{bsonx.Elem{Key: "code", Value: bsonx.Int32(1)}},
-			},
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "create_date", Value: bsonx.Int32(-1)}}},
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "code", Value: bsonx.Int32(1)}}},
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "name", Value: bsonx.Int32(1)}}},
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "classify", Value: bsonx.Int32(1)}}},
 		})
 		if err != nil {
 			log.Println(err)

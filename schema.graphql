@@ -19,13 +19,17 @@ type Query {
   """
   fetchInfoTime():[Time]!
 
-#   """
-#   估价
-#   """
-#   discount(
-#       create_date: String!
-#       weights: [weights!]!
-#   ):String!
+  """
+  估价
+  """
+  discount(
+    "贴现率"
+    discountRate: Float!
+    "爬取时间"
+    createDate: String!
+    "权重数组"
+    weights: [weights!]!
+  ):String!
 
 }
 
@@ -33,7 +37,7 @@ type Mutation {
 
 }
 
-type weights {
+input weights {
    weight: Float!
    gt: Boolean!
 }
