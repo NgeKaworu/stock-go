@@ -4,14 +4,14 @@ import (
 	"context"
 	"log"
 	"stock/src/models"
+	"stock/src/stock"
 	"time"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"go.mongodb.org/mongo-driver/mongo/writeconcern"
+	"go.mongodb.org/mongo-driver/x/bsonx"
 )
 
 // DbEngine 关系型数据库引擎
@@ -66,29 +66,52 @@ func (d *DbEngine) Open(mg, mdb string, initdb bool) error {
 			panic(err)
 		}
 		defer session.Disconnect(context.Background())
-		//order表
-		// res := InitDbAndColl(session, mdb, models.TEnterpriseIndicator, &models.Enterprise{})
-		ord := session.Database(mdb).Collection(models.TEnterpriseIndicator)
-		indexView := ord.Indexes()
+		// 估值表
+		stocks := session.Database(mdb).Collection(stock.TStock)
+		indexView := stocks.Indexes()
 		_, err = indexView.CreateMany(context.Background(), []mongo.IndexModel{
-			// {
-			// 	Keys: bsonx.Doc{{"biz_id", bsonx.Int32(1)}},
-			// },
-			// {
-			// 	Keys: bsonx.Doc{{"seller_id", bsonx.Int32(1)}},
-			// },
-			// {
-			// 	Keys: bsonx.Doc{{"buyer_id", bsonx.Int32(1)}},
-			// },
-			// {
-			// 	Keys: bsonx.Doc{{"order_status", bsonx.Int32(1)}},
-			// },
-			// {
-			// 	Keys: bsonx.Doc{{"order_sn", bsonx.Int32(1)}},
-			// },
-			// {
-			// 	Keys: bsonx.Doc{{"create_date", bsonx.Int32(-1)}},
-			// },
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "name", Value: bsonx.Int32(1)}}},
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "code", Value: bsonx.Int32(1)}}},
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "classify", Value: bsonx.Int32(1)}}},
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "pb", Value: bsonx.Int32(1)}}},
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "pe", Value: bsonx.Int32(1)}}},
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "peg", Value: bsonx.Int32(1)}}},
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "roe", Value: bsonx.Int32(1)}}},
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "dpe", Value: bsonx.Int32(1)}}},
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "dce", Value: bsonx.Int32(1)}}},
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "aagr", Value: bsonx.Int32(1)}}},
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "grade", Value: bsonx.Int32(1)}}},
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "create_date", Value: bsonx.Int32(-1)}}},
+		})
+		if err != nil {
+			log.Println(err)
+		}
+
+		// 年报表
+		enterprise := session.Database(mdb).Collection(models.TEnterpriseIndicator)
+		indexView = enterprise.Indexes()
+		_, err = indexView.CreateMany(context.Background(), []mongo.IndexModel{
+			{
+				Keys: bsonx.Doc{bsonx.Elem{Key: "create_date", Value: bsonx.Int32(-1)}},
+			},
+			{
+				Keys: bsonx.Doc{bsonx.Elem{Key: "code", Value: bsonx.Int32(1)}},
+			},
+		})
+		if err != nil {
+			log.Println(err)
+		}
+
+		// 当前价值
+		info := session.Database(mdb).Collection(models.TCurrentInfo)
+		indexView = info.Indexes()
+		_, err = indexView.CreateMany(context.Background(), []mongo.IndexModel{
+			{
+				Keys: bsonx.Doc{bsonx.Elem{Key: "create_date", Value: bsonx.Int32(-1)}},
+			},
+			{
+				Keys: bsonx.Doc{bsonx.Elem{Key: "code", Value: bsonx.Int32(1)}},
+			},
 		})
 		if err != nil {
 			log.Println(err)
@@ -103,21 +126,6 @@ func (d *DbEngine) Open(mg, mdb string, initdb bool) error {
 func (d *DbEngine) GetColl(coll string) *mongo.Collection {
 	col, _ := d.MgEngine.Database(d.Mdb).Collection(coll).Clone()
 	return col
-}
-
-// InitDbAndColl 建立数据库
-func InitDbAndColl(session *mongo.Client, db, coll string, model map[string]interface{}) map[string]interface{} {
-	tn, _ := session.Database(db).ListCollections(context.Background(), bson.M{"name": coll})
-	if tn.Next(context.Background()) == false {
-		session.Database(db).RunCommand(context.Background(), bson.D{primitive.E{Key: "create", Value: coll}})
-	}
-	result := session.Database(db).RunCommand(context.Background(), bson.D{primitive.E{Key: "collMod", Value: coll}, primitive.E{Key: "validator", Value: model}})
-	var res map[string]interface{}
-	err := result.Decode(&res)
-	if err != nil {
-		log.Println(err)
-	}
-	return res
 }
 
 // Close 关闭连接池
