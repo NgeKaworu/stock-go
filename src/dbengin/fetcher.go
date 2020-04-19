@@ -45,10 +45,12 @@ func (d *DbEngine) FetchEnterprise() (string, error) {
 	}
 
 	tEnterpriseIndicator := d.GetColl(models.TEnterpriseIndicator)
-	if _, err := tEnterpriseIndicator.InsertMany(context.Background(), allReport); err != nil {
-		return "成功", nil
-	} else {
+	_, err := tEnterpriseIndicator.InsertMany(context.Background(), allReport)
+
+	if err != nil {
 		return "错误", err
 	}
+
+	return "成功", nil
 
 }
