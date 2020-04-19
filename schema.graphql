@@ -4,23 +4,23 @@ schema {
 }
 
 type Query {
-  """
-  获取当前价格信息
-  """
-  fetchCurrent():String!
+#   """
+#   获取当前价格信息
+#   """
+#   fetchCurrent():String!
 
   """
   获取年报
   """
   fetchEnterprise():String!
 
-  """
-  估价
-  """
-  discount(
-      create_date: String!
-      weights: [weights!]!
-  ):String!
+#   """
+#   估价
+#   """
+#   discount(
+#       create_date: String!
+#       weights: [weights!]!
+#   ):String!
 
 }
 
