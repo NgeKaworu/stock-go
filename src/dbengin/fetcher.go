@@ -8,6 +8,8 @@ import (
 	"stock/src/stock"
 	"stock/src/utils"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // FetchEnterprise 爬年报+写库
@@ -46,7 +48,7 @@ func (d *DbEngine) FetchEnterprise() (string, error) {
 	}
 
 	tEnterpriseIndicator := d.GetColl(models.TEnterpriseIndicator)
-	_, err := tEnterpriseIndicator.DeleteMany(context.Background(), nil)
+	_, err := tEnterpriseIndicator.DeleteMany(context.Background(), bson.M{})
 
 	if err != nil {
 		return "删除错误", err
