@@ -9,32 +9,23 @@ import (
 	"stock/src/utils"
 	"time"
 
+	"github.com/graph-gophers/graphql-go"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
+
+var stocks = utils.Merge(constants.Ss50, constants.Hs300)
 
 // FetchEnterprise 爬年报+写库
 func (d *DbEngine) FetchEnterprise() (string, error) {
-
-	stocks := utils.Merge(constants.Ss50, constants.Hs300)
 	allReport := make([]interface{}, 0)
 	now := time.Now().Local()
 	pool := make(chan bool, 10)
 	for k, v := range stocks {
 		pool <- true
 		go func(key, val string) {
-			s := &stock.Stock{
-				Code:       key,
-				BourseCode: val,
-			}
-			switch val {
-			case "01":
-				s.Bourse = "sh"
-			case "02":
-				s.Bourse = "sz"
-			default:
-				break
-			}
-			log.Println("current code: " + key)
+			s := stock.NewStock(key, val)
+			log.Println("FetchEnterprise current code: " + key)
 			s.FetchMainIndicator()
 
 			for _, enterprise := range *s.Enterprise {
@@ -62,4 +53,64 @@ func (d *DbEngine) FetchEnterprise() (string, error) {
 
 	return "成功", nil
 
+}
+
+// FetchCurrent 爬取当前信息
+func (d *DbEngine) FetchCurrent() (string, error) {
+	allMarket := make([]interface{}, 0)
+	now := time.Now().Local()
+	pool := make(chan bool, 10)
+	for k, v := range stocks {
+		pool <- true
+		go func(key, val string) {
+			s := stock.NewStock(key, val)
+			log.Println("FetchCurrent current code: " + key)
+
+			s.FetchCurrentInfo()
+			s.CurrentInfo.Code = s.Code
+			s.CurrentInfo.CreateDate = now
+			allMarket = append(allMarket, *s.CurrentInfo)
+			<-pool
+		}(k, v)
+	}
+
+	tCurrentInfo := d.GetColl(models.TCurrentInfo)
+	_, err := tCurrentInfo.InsertMany(context.Background(), allMarket)
+
+	if err != nil {
+		return "FetchCurrent 失败", nil
+	}
+
+	return "成功", nil
+}
+
+// FetchInfoTime 获取所有 爬取时间
+func (d *DbEngine) FetchInfoTime(ctx context.Context) ([]*graphql.Time, error) {
+	query := []bson.M{
+		{"$group": bson.M{
+			"_id": "$create_date",
+		}},
+	}
+	tCurrentInfo := d.GetColl(models.TCurrentInfo)
+	re, err := tCurrentInfo.Aggregate(ctx, query, options.Aggregate())
+	if err != nil {
+		return nil, err
+	}
+	times := make([]map[string]time.Time, 0)
+	err = re.All(ctx, &times)
+
+	if err != nil {
+		return nil, err
+	}
+
+	gqlTimes := make([]*graphql.Time, 0)
+
+	for _, v := range times {
+		if time, ok := v["_id"]; ok {
+			gqlTime := &graphql.Time{Time: time.Local()}
+			gqlTimes = append(gqlTimes, gqlTime)
+		}
+
+	}
+	return gqlTimes, nil
 }

@@ -33,6 +33,24 @@ type Stock struct {
 	CreateDate  time.Time            `json:"createDate" bson:"create_date"`        //创建时间
 }
 
+// NewStock retrun new stock
+func NewStock(code, bourseCode string) *Stock {
+	s := &Stock{
+		Code:       code,
+		BourseCode: bourseCode,
+	}
+	switch bourseCode {
+	case "01":
+		s.Bourse = "sh"
+	case "02":
+		s.Bourse = "sz"
+	default:
+		break
+	}
+
+	return s
+}
+
 // CusSort 自定义 排序
 func CusSort(s interface{}, key string, gt bool) {
 

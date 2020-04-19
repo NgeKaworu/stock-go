@@ -4,15 +4,20 @@ schema {
 }
 
 type Query {
-#   """
-#   获取当前价格信息
-#   """
-#   fetchCurrent():String!
+  """
+  获取当前价格信息
+  """
+  fetchCurrent():String!
 
   """
   获取年报
   """
   fetchEnterprise():String!
+
+  """
+  获取所有价格的爬取时间
+  """
+  fetchInfoTime():[Time]!
 
 #   """
 #   估价
