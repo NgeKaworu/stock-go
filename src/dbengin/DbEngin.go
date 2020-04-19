@@ -115,6 +115,17 @@ func (d *DbEngine) Open(mg, mdb string, initdb bool) error {
 			log.Println(err)
 		}
 
+		// 权重
+		weight := session.Database(mdb).Collection(stock.TWeight)
+		indexView = weight.Indexes()
+		_, err = indexView.CreateMany(context.Background(), []mongo.IndexModel{
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "create_date", Value: bsonx.Int32(-1)}}},
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "name", Value: bsonx.Int32(1)}}},
+		})
+		if err != nil {
+			log.Println(err)
+		}
+
 	}
 
 	return nil

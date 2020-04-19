@@ -117,16 +117,9 @@ func (d *DbEngine) FetchInfoTime(ctx context.Context) ([]*graphql.Time, error) {
 
 // DiscountQuery 估值入参结构
 type DiscountQuery struct {
-	DiscountRate float64
-	CreateDate   string
-	Weights      []Weights
-}
-
-// Weights 权重结构
-type Weights struct {
-	Name   string
-	Weight float64
-	Gt     bool
+	DiscountRate float64         `json:"discountRate" bson:"discount_rate"`
+	CreateDate   string          `json:"createDate" bson:"create_date" formatter:"local"`
+	Weights      []stock.Weights `json:"weights,omitempty" bson:"weights,omitempty"`
 }
 
 // Discount 计算估值

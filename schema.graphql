@@ -38,8 +38,9 @@ type Mutation {
 }
 
 input weights {
-   weight: Float!
-   gt: Boolean!
+  name: String!
+  weight: Float!
+  gt: Boolean!
 }
 
 scalar Time

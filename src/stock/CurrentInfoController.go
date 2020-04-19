@@ -36,6 +36,10 @@ func (s *Stock) FetchCurrentInfo() {
 
 	st := reflect.ValueOf(ci).Elem()
 	for k, v := range strArr[:len(strArr)-3] {
+		if k == 0 {
+			st.Field(k).SetString(strings.Split(v, "\"")[1])
+			continue
+		}
 		st.Field(k).SetString(v)
 
 	}

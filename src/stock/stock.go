@@ -31,6 +31,17 @@ type Stock struct {
 	CreateDate  time.Time            `json:"createDate" bson:"create_date"`     //创建时间
 }
 
+// TWeight 权重表名
+const TWeight = "t_weight"
+
+// Weights 权重结构
+type Weights struct {
+	Name       string    `json:"name" bson:"name"`                       //权重名字
+	Weight     float64   `json:"weight" bson:"weight"`                   //权重
+	Gt         bool      `json:"gt" bson:"gt"`                           //是否大于
+	CreateDate time.Time `json:"createDate" bson:"create_date,omitzero"` //创建时间
+}
+
 // NewStock retrun new stock
 func NewStock(code, bourseCode string) *Stock {
 	s := &Stock{
@@ -69,14 +80,11 @@ func CusSort(s interface{}, key string, gt bool) {
 }
 
 // WeightSort 权重排序
-func WeightSort(weights map[string][]interface{}, s *[]Stock, total float64) {
-
+func WeightSort(weights []Weights, s *[]Stock, total float64) {
 	l := len(*s)
-
-	for k, v := range weights {
-		weight, gt := v[0], v[1]
-		rate := float64(weight.(int)) / total
-		CusSort(*s, k, gt.(bool))
+	for _, v := range weights {
+		rate := v.Weight / total
+		CusSort(*s, v.Name, v.Gt)
 		for i := 0; i < l; i++ {
 			(*s)[i].Grade += float64(l-i) * rate
 		}
