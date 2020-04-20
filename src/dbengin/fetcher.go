@@ -124,6 +124,14 @@ type DiscountQuery struct {
 
 // Discount 计算估值
 func (d *DbEngine) Discount(ctx context.Context, args DiscountQuery) (string, error) {
+	// // 风险收益率(Rate of Risked Return)
+	// // 假设10年内 > 80% 30年内 < 20%
+	// RRR := 0.086
+	// // 通货
+	// CPI := 0.052
+	// // 无风险利率 (The risk-free rate of interest)
+	// RFR := 0.0285
+	// discount := RRR + CPI + RFR
 	m, err := d.Mapper.Conver2Map(args)
 
 	if err != nil {
@@ -135,6 +143,14 @@ func (d *DbEngine) Discount(ctx context.Context, args DiscountQuery) (string, er
 	query := []bson.M{
 		{"$match": bson.M{"create_date": m["create_date"]}},
 		{"$project": bson.M{"_id": 0, "current_info": "$$ROOT"}},
+		{
+			"$lookup": bson.M{
+				"from":         "t_enterprise_indicator",
+				"localField":   "current_info.code",
+				"foreignField": "code",
+				"as":           "enterprise",
+			},
+		},
 	}
 
 	re, err := tInfo.Aggregate(ctx, query, options.Aggregate())
@@ -142,17 +158,41 @@ func (d *DbEngine) Discount(ctx context.Context, args DiscountQuery) (string, er
 		return "Aggregate 失败", err
 	}
 
-	stocks := make([]*stock.Stock, 0)
+	stocks := make([]stock.Stock, 0)
 	err = re.All(ctx, &stocks)
-
 	if err != nil {
 		return "All 失败", err
 	}
 
-	for _, v := range stocks {
-		log.Printf("%T %v %T %v", v.CurrentInfo, v.CurrentInfo, v, v)
+	stock.WeightSort(args.Weights, &stocks)
+
+	now := time.Now().Local()
+
+	s, err := d.Mapper.Conver(stocks)
+
+	if err != nil {
+		return "s Conver2Map 失败", err
 	}
 
-	log.Printf("%+v\n", m)
+	for _, v := range s.([]interface{}) {
+		v.(map[string]interface{})["create_date"] = now
+		delete(v.(map[string]interface{}), "enterprise")
+		delete(v.(map[string]interface{}), "current_info")
+	}
+
+	for _, v := range m["weights"].([]interface{}) {
+		v.(map[string]interface{})["create_date"] = now
+	}
+
+	tStock := d.GetColl(stock.TStock)
+	if _, err := tStock.InsertMany(context.Background(), s.([]interface{})); err != nil {
+		return "InsertMany s Conver2Map 失败", err
+	}
+
+	tWeight := d.GetColl(stock.TWeight)
+	if _, err := tWeight.InsertMany(context.Background(), m["weights"].([]interface{})); err != nil {
+		return "InsertMany w Conver2Map 失败", err
+	}
+
 	return "成功", nil
 }

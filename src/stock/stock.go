@@ -82,7 +82,11 @@ func CusSort(s interface{}, key string, gt bool) {
 }
 
 // WeightSort 权重排序
-func WeightSort(weights []Weights, s *[]Stock, total float64) {
+func WeightSort(weights []Weights, s *[]Stock) {
+	var total float64
+	for _, v := range weights {
+		total += v.Weight
+	}
 	l := len(*s)
 	for _, v := range weights {
 		rate := v.Weight / total
