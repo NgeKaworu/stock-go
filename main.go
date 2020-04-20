@@ -30,13 +30,6 @@ func main() {
 		dbinit = flag.Bool("i", false, "init database flag")
 		mongo  = flag.String("m", "mongodb://localhost:27017", "mongod addr flag")
 		db     = flag.String("db", "stock_test", "database name")
-		// pb     = flag.Int("pb", 2, "pb weight")
-		// pe     = flag.Int("pe", 5, "pe weight")
-		// peg    = flag.Int("peg", 6, "peg weight")
-		// roe    = flag.Int("roe", 8, "roe weight")
-		// dpe    = flag.Int("dpe", 8, "dpe weight")
-		// dce    = flag.Int("dce", 5, "dce weight")
-		// aagr   = flag.Int("aagr", 8, "aagr weight")
 	)
 	flag.Parse()
 

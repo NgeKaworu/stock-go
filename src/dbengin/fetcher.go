@@ -142,6 +142,7 @@ func (d *DbEngine) Discount(ctx context.Context, args DiscountQuery) (string, er
 
 	query := []bson.M{
 		{"$match": bson.M{"create_date": m["create_date"]}},
+		{"$limit": 5},
 		{"$project": bson.M{"_id": 0, "current_info": "$$ROOT"}},
 		{
 			"$lookup": bson.M{
@@ -158,30 +159,37 @@ func (d *DbEngine) Discount(ctx context.Context, args DiscountQuery) (string, er
 		return "Aggregate 失败", err
 	}
 
-	stocks := make([]stock.Stock, 0)
+	stocks := make([]*stock.Stock, 0)
 	err = re.All(ctx, &stocks)
 	if err != nil {
 		return "All 失败", err
 	}
 
+	now := time.Now().Local()
+	pool := make(chan bool, 100)
+	for _, s := range stocks {
+		pool <- true
+		go func(s *stock.Stock) {
+			s.Calc()
+			s.Discount(m["discount_rate"].(float64))
+			s.CreateDate = now
+			s.Code = s.CurrentInfo.Code
+			s.Enterprise = nil
+			s.CurrentInfo = nil
+			<-pool
+		}(s)
+	}
+
 	stock.WeightSort(args.Weights, &stocks)
 
-	now := time.Now().Local()
+	for _, v := range m["weights"].([]interface{}) {
+		v.(map[string]interface{})["create_date"] = now
+	}
 
 	s, err := d.Mapper.Conver(stocks)
 
 	if err != nil {
-		return "s Conver2Map 失败", err
-	}
-
-	for _, v := range s.([]interface{}) {
-		v.(map[string]interface{})["create_date"] = now
-		delete(v.(map[string]interface{}), "enterprise")
-		delete(v.(map[string]interface{}), "current_info")
-	}
-
-	for _, v := range m["weights"].([]interface{}) {
-		v.(map[string]interface{})["create_date"] = now
+		return "Conve 失败", err
 	}
 
 	tStock := d.GetColl(stock.TStock)

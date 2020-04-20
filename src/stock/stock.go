@@ -67,9 +67,9 @@ func CusSort(s interface{}, key string, gt bool) {
 
 	sort.Slice(s, func(i, j int) bool {
 		var isGt bool
-		val := reflect.ValueOf(s)
-		s1 := val.Index(i).FieldByName(key).Interface().(float64)
-		s2 := val.Index(j).FieldByName(key).Interface().(float64)
+		val := reflect.Indirect(reflect.ValueOf(&s))
+		s1 := val.Index(i).FieldByName(key).Float()
+		s2 := val.Index(j).FieldByName(key).Float()
 		if s1 > s2 {
 			isGt = true
 		}
@@ -82,18 +82,25 @@ func CusSort(s interface{}, key string, gt bool) {
 }
 
 // WeightSort 权重排序
-func WeightSort(weights []Weights, s *[]Stock) {
+func WeightSort(weights []Weights, s *[]*Stock) {
 	var total float64
 	for _, v := range weights {
 		total += v.Weight
 	}
+
 	l := len(*s)
+	pool := make(chan bool, 100)
 	for _, v := range weights {
 		rate := v.Weight / total
 		CusSort(*s, v.Name, v.Gt)
 		for i := 0; i < l; i++ {
-			(*s)[i].Grade += float64(l-i) * rate
+			pool <- true
+			go func(i int) {
+				(*s)[i].Grade += float64(l-i) * rate
+				<-pool
+			}(i)
 		}
+
 	}
 	CusSort(*s, "Grade", true)
 }
