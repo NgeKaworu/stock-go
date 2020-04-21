@@ -142,7 +142,6 @@ func (d *DbEngine) Discount(ctx context.Context, args DiscountQuery) (string, er
 
 	query := []bson.M{
 		{"$match": bson.M{"create_date": m["create_date"]}},
-		{"$limit": 5},
 		{"$project": bson.M{"_id": 0, "current_info": "$$ROOT"}},
 		{
 			"$lookup": bson.M{
@@ -167,16 +166,20 @@ func (d *DbEngine) Discount(ctx context.Context, args DiscountQuery) (string, er
 
 	now := time.Now().Local()
 	pool := make(chan bool, 100)
+	ss := make([]interface{}, 0)
 	for _, s := range stocks {
 		pool <- true
 		go func(s *stock.Stock) {
-			s.Calc()
-			s.Discount(m["discount_rate"].(float64))
 			s.CreateDate = now
 			s.Code = s.CurrentInfo.Code
+			s.Classify = s.CurrentInfo.Classify
+			s.Name = s.CurrentInfo.Name
+			s.Calc()
+			s.Discount(m["discount_rate"].(float64))
 			s.Enterprise = nil
 			s.CurrentInfo = nil
 			<-pool
+			ss = append(ss, s)
 		}(s)
 	}
 
@@ -186,20 +189,14 @@ func (d *DbEngine) Discount(ctx context.Context, args DiscountQuery) (string, er
 		v.(map[string]interface{})["create_date"] = now
 	}
 
-	s, err := d.Mapper.Conver(stocks)
-
-	if err != nil {
-		return "Conve 失败", err
-	}
-
 	tStock := d.GetColl(stock.TStock)
-	if _, err := tStock.InsertMany(context.Background(), s.([]interface{})); err != nil {
-		return "InsertMany s Conver2Map 失败", err
+	if _, err := tStock.InsertMany(context.Background(), ss); err != nil {
+		return "InsertMany s 失败", err
 	}
 
 	tWeight := d.GetColl(stock.TWeight)
 	if _, err := tWeight.InsertMany(context.Background(), m["weights"].([]interface{})); err != nil {
-		return "InsertMany w Conver2Map 失败", err
+		return "InsertMany w 失败", err
 	}
 
 	return "成功", nil

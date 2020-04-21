@@ -30,7 +30,7 @@ func (s *Stock) CalcPB() {
 	s.PB = cp / bps
 
 	if err != nil {
-		log.Println(err)
+		log.Println(err, s.Code)
 	}
 }
 
@@ -44,7 +44,7 @@ func (s *Stock) CalcPE() {
 	s.PE = mgwfplr / cp
 
 	if err != nil {
-		log.Println(err)
+		log.Println(err, s.Code)
 	}
 }
 
@@ -67,7 +67,7 @@ func (s *Stock) CalcAAGR() {
 		sum += curAAGR
 
 		if err != nil {
-			log.Println(err)
+			log.Println(err, s.Code)
 		}
 
 	}
@@ -91,7 +91,7 @@ func (s *Stock) CalcROE() {
 	s.ROE = mgwfplr / bps
 
 	if err != nil {
-		log.Println(err)
+		log.Println(err, s.Code)
 	}
 }
 
@@ -101,7 +101,7 @@ func (s *Stock) CalcDPE(r float64) {
 	s.DPE = bps / (r - s.AAGR)
 
 	if err != nil {
-		log.Println(err)
+		log.Println(err, s.Code)
 	}
 
 }
@@ -112,7 +112,7 @@ func (s *Stock) CalcDCE(r float64) {
 	mgjyxjje, err := strconv.ParseFloat((*s.Enterprise)[0].Mgjyxjje, 64)
 
 	if err != nil {
-		log.Println(err)
+		log.Println(err, s.Code)
 	}
 
 	s.DCE = mgjyxjje / (r - s.AAGR)

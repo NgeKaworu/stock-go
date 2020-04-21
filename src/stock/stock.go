@@ -29,6 +29,8 @@ type Stock struct {
 	AAGR        float64              `json:"AAGR" bson:"aagr"`                                    //平均年增长率
 	Grade       float64              `json:"grade" bson:"grade"`                                  //评分
 	CreateDate  time.Time            `json:"createDate" bson:"create_date"`                       //创建时间
+	Classify    string               `json:"classify" bson:"classify"`                            //板块
+	Name        string               `json:"name,omitempty" bson:"name,omitempty"`                //股票名字
 }
 
 // TWeight 权重表名
@@ -67,9 +69,9 @@ func CusSort(s interface{}, key string, gt bool) {
 
 	sort.Slice(s, func(i, j int) bool {
 		var isGt bool
-		val := reflect.Indirect(reflect.ValueOf(&s))
-		s1 := val.Index(i).FieldByName(key).Float()
-		s2 := val.Index(j).FieldByName(key).Float()
+		val := reflect.Indirect(reflect.ValueOf(s))
+		s1 := reflect.Indirect(val.Index(i)).FieldByName(key).Float()
+		s2 := reflect.Indirect(val.Index(j)).FieldByName(key).Float()
 		if s1 > s2 {
 			isGt = true
 		}

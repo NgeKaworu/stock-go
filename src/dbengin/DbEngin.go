@@ -77,7 +77,9 @@ func (d *DbEngine) Open(mg, mdb string, initdb bool) error {
 		indexView := stocks.Indexes()
 		_, err = indexView.CreateMany(context.Background(), []mongo.IndexModel{
 			{Keys: bsonx.Doc{bsonx.Elem{Key: "code", Value: bsonx.Int32(1)}}},
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "classify", Value: bsonx.Int32(1)}}},
 			{Keys: bsonx.Doc{bsonx.Elem{Key: "pb", Value: bsonx.Int32(1)}}},
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "omitempty", Value: bsonx.Int32(1)}}},
 			{Keys: bsonx.Doc{bsonx.Elem{Key: "pe", Value: bsonx.Int32(1)}}},
 			{Keys: bsonx.Doc{bsonx.Elem{Key: "peg", Value: bsonx.Int32(1)}}},
 			{Keys: bsonx.Doc{bsonx.Elem{Key: "roe", Value: bsonx.Int32(1)}}},
