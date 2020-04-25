@@ -87,6 +87,9 @@ func (d *DbEngine) Open(mg, mdb string, initdb bool) error {
 			{Keys: bsonx.Doc{bsonx.Elem{Key: "dce", Value: bsonx.Int32(1)}}},
 			{Keys: bsonx.Doc{bsonx.Elem{Key: "aagr", Value: bsonx.Int32(1)}}},
 			{Keys: bsonx.Doc{bsonx.Elem{Key: "grade", Value: bsonx.Int32(1)}}},
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "name", Value: bsonx.Int32(1)}}},
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "dper", Value: bsonx.Int32(1)}}},
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "dcer", Value: bsonx.Int32(1)}}},
 			{Keys: bsonx.Doc{bsonx.Elem{Key: "create_date", Value: bsonx.Int32(-1)}}},
 		})
 		if err != nil {

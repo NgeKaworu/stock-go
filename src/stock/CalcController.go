@@ -17,7 +17,9 @@ func (s *Stock) Calc() {
 // Discount 估值
 func (s *Stock) Discount(r float64) {
 	s.CalcDCE(r)
+	s.CalcDCER()
 	s.CalcDPE(r)
+	s.CalcDPER()
 }
 
 // CalcPB 计算市净率
@@ -121,6 +123,16 @@ func (s *Stock) CalcDPE(r float64) {
 	s.DPE = bps / (r - s.AAGR)
 }
 
+// CalcDPER 估值 现值比
+func (s *Stock) CalcDPER() {
+	cp, err := strconv.ParseFloat(s.CurrentInfo.CurrentPrice, 64)
+	if err != nil || cp == 0 {
+		return
+	}
+
+	s.DPER = s.DPE / cp
+}
+
 // CalcDCE 计算动态现金估值
 func (s *Stock) CalcDCE(r float64) {
 	// 每股经营现金流(元)
@@ -131,4 +143,14 @@ func (s *Stock) CalcDCE(r float64) {
 		return
 	}
 	s.DCE = mgjyxjje / (r - s.AAGR)
+}
+
+// CalcDCER 估值 现值比
+func (s *Stock) CalcDCER() {
+	cp, err := strconv.ParseFloat(s.CurrentInfo.CurrentPrice, 64)
+	if err != nil || cp == 0 {
+		return
+	}
+
+	s.DCER = s.DCE / cp
 }

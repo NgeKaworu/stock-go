@@ -41,7 +41,8 @@ type Query {
     createDate: String!
     "权重数组"
     weights: [weights!]!
-  ):String!
+    limit: Int
+  ):[Stock]!
 
 }
 
@@ -58,7 +59,9 @@ PE:Float!
 PEG:Float!
 ROE:Float!
 DPE:Float!
+DPER:Float!
 DCE:Float!
+DCER:Float!
 AAGR:Float!
 grade:Float!
 classify:String!

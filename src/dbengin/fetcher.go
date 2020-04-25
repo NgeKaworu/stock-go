@@ -120,7 +120,8 @@ func (d *DbEngine) Discount(ctx context.Context, args struct {
 	DiscountRate float64         `json:"discountRate" bson:"discount_rate"`
 	CreateDate   string          `json:"createDate" bson:"create_date" formatter:"local"`
 	Weights      []stock.Weights `json:"weights,omitempty" bson:"weights,omitempty"`
-}) (string, error) {
+	Limit        *int32          `json:"limit,omitempty" bson:"limit,omitempty"`
+}) ([]*stock.Stock, error) {
 	// // 风险收益率(Rate of Risked Return)
 	// // 假设10年内 > 80% 30年内 < 20%
 	// RRR := 0.086
@@ -132,13 +133,13 @@ func (d *DbEngine) Discount(ctx context.Context, args struct {
 	m, err := d.Mapper.Conver2Map(args)
 
 	if err != nil {
-		return "Conver2Map 失败", err
+		return nil, err
 	}
 
 	tInfo := d.GetColl(models.TCurrentInfo)
 
 	query := []bson.M{
-		{"$match": bson.M{"create_date": m["create_date"], "code": "002450"}},
+		{"$match": bson.M{"create_date": m["create_date"]}},
 		{"$project": bson.M{"_id": 0, "current_info": "$$ROOT"}},
 		{
 			"$lookup": bson.M{
@@ -152,13 +153,13 @@ func (d *DbEngine) Discount(ctx context.Context, args struct {
 
 	re, err := tInfo.Aggregate(ctx, query, options.Aggregate())
 	if err != nil {
-		return "Aggregate 失败", err
+		return nil, err
 	}
 
 	stocks := make([]*stock.Stock, 0)
 	err = re.All(ctx, &stocks)
 	if err != nil {
-		return "All 失败", err
+		return nil, err
 	}
 
 	now := time.Now().Local()
@@ -189,15 +190,18 @@ func (d *DbEngine) Discount(ctx context.Context, args struct {
 
 	tStock := d.GetColl(stock.TStock)
 	if _, err := tStock.InsertMany(context.Background(), ss); err != nil {
-		return "InsertMany s 失败", err
+		return nil, err
 	}
 
 	tWeight := d.GetColl(stock.TWeight)
 	if _, err := tWeight.InsertMany(context.Background(), m["weights"].([]interface{})); err != nil {
-		return "InsertMany w 失败", err
+		return nil, err
 	}
 
-	return "成功", nil
+	if limit, ok := m["limit"]; ok {
+		return stocks[:limit.(int32)], nil
+	}
+	return stocks, nil
 }
 
 // FetchStockTime 获取所有 爬取时间

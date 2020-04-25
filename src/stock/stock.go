@@ -25,7 +25,9 @@ type Stock struct {
 	PEG         float64              `json:"PEG,omitempty" bson:"peg,omitempty"`                  //市盈增长比
 	ROE         float64              `json:"ROE,omitempty" bson:"roe,omitempty"`                  //净资产收益率
 	DPE         float64              `json:"DPE,omitempty" bson:"dpe,omitempty"`                  //动态利润估值
+	DPER        float64              `json:"DPER,omitempty" bson:"dper,omitempty"`                //动态利润估值率
 	DCE         float64              `json:"DCE,omitempty" bson:"dce,omitempty"`                  //动态现金估值
+	DCER        float64              `json:"DCER,omitempty" bson:"dcer,omitempty"`                //动态现金估值率
 	AAGR        float64              `json:"AAGR,omitempty" bson:"aagr,omitempty"`                //平均年增长率
 	Grade       float64              `json:"grade,omitempty" bson:"grade,omitempty"`              //评分
 	CreateDate  time.Time            `json:"createDate" bson:"create_date"`                       //创建时间
