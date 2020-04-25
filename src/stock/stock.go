@@ -20,15 +20,16 @@ type Stock struct {
 	BourseCode  *string              `json:"bourseCode,omitempty" bson:"bourse_code,omitempty"`   //交易所代码
 	Enterprise  *[]models.Enterprise `json:"enterprise,omitempty" bson:"enterprise,omitempty"`    //年报列表
 	CurrentInfo *models.CurrentInfo  `json:"currentInfo,omitempty" bson:"current_info,omitempty"` //当前信息
-	PB          float64              `json:"PB" bson:"pb"`                                        //市净率
-	PE          float64              `json:"PE" bson:"pe"`                                        //市盈率
-	PEG         float64              `json:"PEG" bson:"peg"`                                      //市盈增长比
-	ROE         float64              `json:"ROE" bson:"roe"`                                      //净资产收益率
-	DPE         float64              `json:"DPE" bson:"dpe"`                                      //动态利润估值
-	DCE         float64              `json:"DCE" bson:"dce"`                                      //动态现金估值
-	AAGR        float64              `json:"AAGR" bson:"aagr"`                                    //平均年增长率
-	Grade       float64              `json:"grade" bson:"grade"`                                  //评分
+	PB          float64              `json:"PB,omitempty" bson:"pb,omitempty"`                    //市净率
+	PE          float64              `json:"PE,omitempty" bson:"pe,omitempty"`                    //市盈率
+	PEG         float64              `json:"PEG,omitempty" bson:"peg,omitempty"`                  //市盈增长比
+	ROE         float64              `json:"ROE,omitempty" bson:"roe,omitempty"`                  //净资产收益率
+	DPE         float64              `json:"DPE,omitempty" bson:"dpe,omitempty"`                  //动态利润估值
+	DCE         float64              `json:"DCE,omitempty" bson:"dce,omitempty"`                  //动态现金估值
+	AAGR        float64              `json:"AAGR,omitempty" bson:"aagr,omitempty"`                //平均年增长率
+	Grade       float64              `json:"grade,omitempty" bson:"grade,omitempty"`              //评分
 	CreateDate  time.Time            `json:"createDate" bson:"create_date"`                       //创建时间
+	OriginDate  time.Time            `json:"originDate" bson:"origin_date"`                       //ci时间
 	Classify    string               `json:"classify" bson:"classify"`                            //板块
 	Name        string               `json:"name,omitempty" bson:"name,omitempty"`                //股票名字
 }
@@ -98,6 +99,7 @@ func WeightSort(weights []Weights, s *[]*Stock) {
 		for i := 0; i < l; i++ {
 			pool <- true
 			go func(i int) {
+
 				(*s)[i].Grade += float64(l-i) * rate
 				<-pool
 			}(i)

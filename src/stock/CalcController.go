@@ -24,28 +24,38 @@ func (s *Stock) Discount(r float64) {
 func (s *Stock) CalcPB() {
 	// 股价
 	cp, err := strconv.ParseFloat(s.CurrentInfo.CurrentPrice, 64)
+	if err != nil {
+		log.Println(err, s.Code, "cp")
+		return
+	}
 	// 每股净资产
 	bps, err := strconv.ParseFloat((*s.Enterprise)[0].Bps, 64)
+	if err != nil || bps == 0 {
+		log.Println(err, s.Code, "bps")
+		return
+	}
 
 	s.PB = cp / bps
 
-	if err != nil {
-		log.Println(err, s.Code)
-	}
 }
 
 // CalcPE 计算市盈率
 func (s *Stock) CalcPE() {
 	// 股价
 	cp, err := strconv.ParseFloat(s.CurrentInfo.CurrentPrice, 64)
+	if err != nil || cp == 0 {
+		log.Println(err, s.Code, "cp")
+		return
+	}
 	// 每股未分配利润
 	mgwfplr, err := strconv.ParseFloat((*s.Enterprise)[0].Mgwfplr, 64)
+	if err != nil {
+		log.Println(err, s.Code, "mgfplr")
+		return
+	}
 
 	s.PE = mgwfplr / cp
 
-	if err != nil {
-		log.Println(err, s.Code)
-	}
 }
 
 // CalcAAGR 计算平均年增长率
@@ -71,7 +81,6 @@ func (s *Stock) CalcAAGR() {
 		}
 
 	}
-
 	s.AAGR = sum / float64((len - 1))
 
 }
@@ -79,31 +88,37 @@ func (s *Stock) CalcAAGR() {
 // CalcPEG 计算市盈增长比
 func (s *Stock) CalcPEG() {
 	s.PEG = s.PE / s.AAGR
+
 }
 
 // CalcROE 计算净资产收益率
 func (s *Stock) CalcROE() {
 	// 每股净值
 	mgwfplr, err := strconv.ParseFloat((*s.Enterprise)[0].Mgwfplr, 64)
+	if err != nil {
+		log.Println(err, s.Code, "mgwfplr")
+		return
+	}
 	// 每股未分配利润
 	bps, err := strconv.ParseFloat((*s.Enterprise)[0].Bps, 64)
+	if err != nil || bps == 0 {
+		log.Println(err, s.Code, "bps")
+		return
+	}
 
 	s.ROE = mgwfplr / bps
 
-	if err != nil {
-		log.Println(err, s.Code)
-	}
 }
 
 // CalcDPE 计算动态利润估值
 func (s *Stock) CalcDPE(r float64) {
 	bps, err := strconv.ParseFloat((*s.Enterprise)[0].Bps, 64)
-	s.DPE = bps / (r - s.AAGR)
 
 	if err != nil {
-		log.Println(err, s.Code)
+		log.Println(err, s.Code, "bps")
+		return
 	}
-
+	s.DPE = bps / (r - s.AAGR)
 }
 
 // CalcDCE 计算动态现金估值
@@ -112,9 +127,8 @@ func (s *Stock) CalcDCE(r float64) {
 	mgjyxjje, err := strconv.ParseFloat((*s.Enterprise)[0].Mgjyxjje, 64)
 
 	if err != nil {
-		log.Println(err, s.Code)
+		log.Println(err, s.Code, "mgjyxjje")
+		return
 	}
-
 	s.DCE = mgjyxjje / (r - s.AAGR)
-
 }

@@ -20,6 +20,18 @@ type Query {
   fetchInfoTime():[Time]!
 
   """
+  获取所有估值的时间
+  """
+  fetchStockTime():[Time]!
+
+  """
+  获取所有估值
+  """
+  getStockByTime(
+    createDate: String!
+    limit: Int
+  ):[Stock]!
+  """
   估价
   """
   discount(
@@ -35,6 +47,22 @@ type Query {
 
 type Mutation {
 
+}
+
+type Stock {
+code:String!
+bourse:String 
+bourseCode:String
+PB:Float!
+PE:Float!
+PEG:Float!
+ROE:Float!
+DPE:Float!
+DCE:Float!
+AAGR:Float!
+grade:Float!
+classify:String!
+name:String!
 }
 
 input weights {

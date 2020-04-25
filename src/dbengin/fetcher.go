@@ -115,15 +115,12 @@ func (d *DbEngine) FetchInfoTime(ctx context.Context) ([]*graphql.Time, error) {
 	return gqlTimes, nil
 }
 
-// DiscountQuery 估值入参结构
-type DiscountQuery struct {
+// Discount 计算估值
+func (d *DbEngine) Discount(ctx context.Context, args struct {
 	DiscountRate float64         `json:"discountRate" bson:"discount_rate"`
 	CreateDate   string          `json:"createDate" bson:"create_date" formatter:"local"`
 	Weights      []stock.Weights `json:"weights,omitempty" bson:"weights,omitempty"`
-}
-
-// Discount 计算估值
-func (d *DbEngine) Discount(ctx context.Context, args DiscountQuery) (string, error) {
+}) (string, error) {
 	// // 风险收益率(Rate of Risked Return)
 	// // 假设10年内 > 80% 30年内 < 20%
 	// RRR := 0.086
@@ -141,7 +138,7 @@ func (d *DbEngine) Discount(ctx context.Context, args DiscountQuery) (string, er
 	tInfo := d.GetColl(models.TCurrentInfo)
 
 	query := []bson.M{
-		{"$match": bson.M{"create_date": m["create_date"]}},
+		{"$match": bson.M{"create_date": m["create_date"], "code": "002450"}},
 		{"$project": bson.M{"_id": 0, "current_info": "$$ROOT"}},
 		{
 			"$lookup": bson.M{
@@ -171,6 +168,7 @@ func (d *DbEngine) Discount(ctx context.Context, args DiscountQuery) (string, er
 		pool <- true
 		go func(s *stock.Stock) {
 			s.CreateDate = now
+			s.OriginDate = m["create_date"].(time.Time)
 			s.Code = s.CurrentInfo.Code
 			s.Classify = s.CurrentInfo.Classify
 			s.Name = s.CurrentInfo.Name
@@ -178,8 +176,8 @@ func (d *DbEngine) Discount(ctx context.Context, args DiscountQuery) (string, er
 			s.Discount(m["discount_rate"].(float64))
 			s.Enterprise = nil
 			s.CurrentInfo = nil
-			<-pool
 			ss = append(ss, s)
+			<-pool
 		}(s)
 	}
 
@@ -200,4 +198,72 @@ func (d *DbEngine) Discount(ctx context.Context, args DiscountQuery) (string, er
 	}
 
 	return "成功", nil
+}
+
+// FetchStockTime 获取所有 爬取时间
+func (d *DbEngine) FetchStockTime(ctx context.Context) ([]*graphql.Time, error) {
+	query := []bson.M{
+		{"$group": bson.M{
+			"_id": "$create_date",
+		}},
+	}
+	tStock := d.GetColl(stock.TStock)
+	re, err := tStock.Aggregate(ctx, query, options.Aggregate())
+	if err != nil {
+		return nil, err
+	}
+	times := make([]map[string]time.Time, 0)
+	err = re.All(ctx, &times)
+
+	if err != nil {
+		return nil, err
+	}
+
+	gqlTimes := make([]*graphql.Time, 0)
+
+	for _, v := range times {
+		if time, ok := v["_id"]; ok {
+			gqlTime := &graphql.Time{Time: time.Local()}
+			gqlTimes = append(gqlTimes, gqlTime)
+		}
+
+	}
+	return gqlTimes, nil
+}
+
+// GetStockByTime 通过时间查估值
+func (d *DbEngine) GetStockByTime(ctx context.Context, args struct {
+	CreateDate string `json:"createDate" bson:"create_date" formatter:"local"`
+	Limit      *int32 `json:"limit,omitempty" bson:"limit,omitempty"`
+}) ([]*stock.Stock, error) {
+	m, err := d.Mapper.Conver2Map(args)
+
+	if err != nil {
+		return nil, err
+	}
+
+	query := []bson.M{
+		{"$match": bson.M{"create_date": m["create_date"]}},
+		{"$sort": bson.M{"grade": -1}},
+	}
+
+	if limit, ok := m["limit"]; ok {
+		query = append(query, bson.M{
+			"$limit": limit,
+		})
+	}
+
+	tStock := d.GetColl(stock.TStock)
+	re, err := tStock.Aggregate(ctx, query, options.Aggregate())
+	if err != nil {
+		return nil, err
+	}
+	s := make([]*stock.Stock, 0)
+
+	err = re.All(ctx, &s)
+	if err != nil {
+		return nil, err
+	}
+
+	return s, nil
 }
