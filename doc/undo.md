@@ -14,6 +14,7 @@
   - [x] 加权
   - [x] 取前15个
 - [x] 数据持久化
+- [ ] MaketValueA 总市值 爬取 //https://emh5.eastmoney.com/api/CaoPanBiDu/GetCaoPanBiDuPart1Get?fc=60316001&color=w
 - [ ] 持仓可视化
   - [ ] 前端
   - [ ] 后端

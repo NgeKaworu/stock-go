@@ -29,7 +29,7 @@ func main() {
 		addr   = flag.String("l", ":8000", "绑定Host地址")
 		dbinit = flag.Bool("i", false, "init database flag")
 		mongo  = flag.String("m", "mongodb://localhost:27017", "mongod addr flag")
-		db     = flag.String("db", "stock_test", "database name")
+		db     = flag.String("db", "stock", "database name")
 	)
 	flag.Parse()
 

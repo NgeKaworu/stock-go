@@ -75,14 +75,18 @@ func CusSort(s interface{}, key string, gt bool) {
 		val := reflect.Indirect(reflect.ValueOf(s))
 		s1 := reflect.Indirect(val.Index(i)).FieldByName(key).Float()
 		s2 := reflect.Indirect(val.Index(j)).FieldByName(key).Float()
+
+		// s1 大于 s2 是大于
 		if s1 > s2 {
 			isGt = true
 		}
-		if gt {
-			return isGt
+
+		// 如果求小于， 必须都大于零
+		if s2 > 0 && s1 > 0 && !gt {
+			return !isGt
 		}
 
-		return !isGt
+		return isGt
 	})
 }
 
