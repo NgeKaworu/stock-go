@@ -2,7 +2,6 @@ package engine
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"time"
 
@@ -22,7 +21,6 @@ func (d *DbEngine) FetchAnnals(w http.ResponseWriter, r *http.Request, ps httpro
 		pool <- true
 		go func(key, val string) {
 			s := stock.NewStock(key, val)
-			log.Println("FetchEnterprise current code: " + key)
 			s.FetchMainIndicator()
 
 			for _, enterprise := range *s.Enterprise {

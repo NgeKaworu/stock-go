@@ -24,10 +24,10 @@ func init() {
 
 func main() {
 	var (
-		addr    = flag.String("l", ":8000", "绑定Host地址")
+		addr    = flag.String("l", ":9000", "绑定Host地址")
 		dbinit  = flag.Bool("i", false, "init database flag")
 		mongo   = flag.String("m", "mongodb://localhost:27017", "mongod addr flag")
-		db      = flag.String("db", "time-mgt", "database name")
+		db      = flag.String("db", "stock", "database name")
 		k       = flag.String("k", "f3fa39nui89Wi707", "iv key")
 		initPwd = flag.String("ipwd", "12345678", "init pwd")
 	)

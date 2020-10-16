@@ -2,7 +2,6 @@ package engine
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"time"
 
@@ -24,7 +23,6 @@ func (d *DbEngine) FetchCurrent(w http.ResponseWriter, r *http.Request, ps httpr
 		pool <- true
 		go func(key, val string) {
 			s := stock.NewStock(key, val)
-			log.Println("FetchCurrent current code: " + key)
 			s.FetchCurrentInfo()
 			s.FetchClassify()
 			s.CurrentInfo.Code = s.Code
