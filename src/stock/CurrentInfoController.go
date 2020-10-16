@@ -6,10 +6,10 @@ import (
 	"log"
 	"net/http"
 	"reflect"
-	"stock/src/models"
 
 	"strings"
 
+	"github.com/NgeKaworu/stock/src/models"
 	"golang.org/x/text/encoding/simplifiedchinese"
 	"golang.org/x/text/transform"
 )

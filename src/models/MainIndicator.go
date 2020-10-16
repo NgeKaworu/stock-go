@@ -76,13 +76,3 @@ type Enterprise struct {
 	InventoryRate                string             `json:"Inventoryrate,omitempty" bson:"inventory_rate,omitempty"`                                  //存货周转率(次)
 	AccountsReceiveableRate      string             `json:"Accountsreceiveablerate,omitempty" bson:"accounts_receiveable_rate,omitempty"`             //应收账款周转率(次)
 }
-
-// type YinHang struct {
-
-// }
-// type QuanShang struct {
-
-// }
-// type BaoXian struct {
-
-// }

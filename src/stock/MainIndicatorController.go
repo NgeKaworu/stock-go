@@ -6,7 +6,8 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"stock/src/models"
+
+	"github.com/NgeKaworu/stock/src/models"
 )
 
 // FetchMainIndicator 获取主要指标

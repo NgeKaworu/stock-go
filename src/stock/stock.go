@@ -1,16 +1,19 @@
 package stock
 
 import (
-	"reflect"
-	"sort"
-	"stock/src/models"
 	"time"
 
+	"github.com/NgeKaworu/stock/src/constants"
+	"github.com/NgeKaworu/stock/src/models"
+	"github.com/NgeKaworu/stock/src/utils"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // TStock 表名
 const TStock = "t_stock"
+
+// Stocks 全部股票集合
+var Stocks = utils.Merge(constants.Ss50, constants.Hs300)
 
 // Stock 股票基本结构
 type Stock struct {
@@ -36,17 +39,6 @@ type Stock struct {
 	Name        string               `json:"name,omitempty" bson:"name,omitempty"`                //股票名字
 }
 
-// TWeight 权重表名
-const TWeight = "t_weight"
-
-// Weights 权重结构
-type Weights struct {
-	Name       string    `json:"name" bson:"name"`                       //权重名字
-	Weight     float64   `json:"weight" bson:"weight"`                   //权重
-	Gt         bool      `json:"gt" bson:"gt"`                           //是否大于
-	CreateDate time.Time `json:"createDate" bson:"create_date,omitzero"` //创建时间
-}
-
 // NewStock retrun new stock
 func NewStock(code, bourseCode string) *Stock {
 	s := &Stock{
@@ -65,52 +57,4 @@ func NewStock(code, bourseCode string) *Stock {
 
 	s.Bourse = &bourse
 	return s
-}
-
-// CusSort 自定义 排序
-func CusSort(s interface{}, key string, gt bool) {
-
-	sort.Slice(s, func(i, j int) bool {
-		var isGt bool
-		val := reflect.Indirect(reflect.ValueOf(s))
-		s1 := reflect.Indirect(val.Index(i)).FieldByName(key).Float()
-		s2 := reflect.Indirect(val.Index(j)).FieldByName(key).Float()
-
-		// s1 大于 s2 是大于
-		if s1 > s2 {
-			isGt = true
-		}
-
-		// 如果求小于， 必须都大于零
-		if s2 > 0 && s1 > 0 && !gt {
-			return !isGt
-		}
-
-		return isGt
-	})
-}
-
-// WeightSort 权重排序
-func WeightSort(weights []Weights, s *[]*Stock) {
-	var total float64
-	for _, v := range weights {
-		total += v.Weight
-	}
-
-	l := len(*s)
-	pool := make(chan bool, 100)
-	for _, v := range weights {
-		rate := v.Weight / total
-		CusSort(*s, v.Name, v.Gt)
-		for i := 0; i < l; i++ {
-			pool <- true
-			go func(i int) {
-
-				(*s)[i].Grade += float64(l-i) * rate
-				<-pool
-			}(i)
-		}
-
-	}
-	CusSort(*s, "Grade", true)
 }

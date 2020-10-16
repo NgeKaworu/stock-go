@@ -1,14 +1,14 @@
-package dbengin
+package engine
 
 import (
 	"context"
 	"log"
-	"stock/src/formatter"
-	"stock/src/models"
-	"stock/src/stock"
+
+	"github.com/NgeKaworu/stock/src/models"
+
 	"time"
 
-	"github.com/NgeKaworu/maplization"
+	"github.com/NgeKaworu/stock/src/auth"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -20,19 +20,18 @@ import (
 type DbEngine struct {
 	MgEngine *mongo.Client //关系型数据库引擎
 	Mdb      string
-	Mapper   *maplization.Maplization
+	Auth     *auth.Auth // 加解密客户端
 }
 
 // NewDbEngine 实例工厂
-func NewDbEngine() *DbEngine {
-	mapper := maplization.NewMapper(formatter.Formatter)
+func NewDbEngine(a *auth.Auth) *DbEngine {
 	return &DbEngine{
-		Mapper: mapper,
+		Auth: a,
 	}
 }
 
 // Open 开启连接池
-func (d *DbEngine) Open(mg, mdb string, initdb bool) error {
+func (d *DbEngine) Open(mg, mdb string, initdb bool, initPwd string) error {
 	d.Mdb = mdb
 	ops := options.Client().ApplyURI(mg)
 	p := uint64(39000)
@@ -72,34 +71,38 @@ func (d *DbEngine) Open(mg, mdb string, initdb bool) error {
 			panic(err)
 		}
 		defer session.Disconnect(context.Background())
-		// 估值表
-		stocks := session.Database(mdb).Collection(stock.TStock)
-		indexView := stocks.Indexes()
+		// 用户表
+		t := session.Database(mdb).Collection(models.TUser)
+		indexView := t.Indexes()
 		_, err = indexView.CreateMany(context.Background(), []mongo.IndexModel{
-			{Keys: bsonx.Doc{bsonx.Elem{Key: "code", Value: bsonx.Int32(1)}}},
-			{Keys: bsonx.Doc{bsonx.Elem{Key: "classify", Value: bsonx.Int32(1)}}},
-			{Keys: bsonx.Doc{bsonx.Elem{Key: "pb", Value: bsonx.Int32(1)}}},
-			{Keys: bsonx.Doc{bsonx.Elem{Key: "omitempty", Value: bsonx.Int32(1)}}},
-			{Keys: bsonx.Doc{bsonx.Elem{Key: "pe", Value: bsonx.Int32(1)}}},
-			{Keys: bsonx.Doc{bsonx.Elem{Key: "peg", Value: bsonx.Int32(1)}}},
-			{Keys: bsonx.Doc{bsonx.Elem{Key: "roe", Value: bsonx.Int32(1)}}},
-			{Keys: bsonx.Doc{bsonx.Elem{Key: "dpe", Value: bsonx.Int32(1)}}},
-			{Keys: bsonx.Doc{bsonx.Elem{Key: "dce", Value: bsonx.Int32(1)}}},
-			{Keys: bsonx.Doc{bsonx.Elem{Key: "aagr", Value: bsonx.Int32(1)}}},
-			{Keys: bsonx.Doc{bsonx.Elem{Key: "grade", Value: bsonx.Int32(1)}}},
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "email", Value: bsonx.Int32(1)}}, Options: options.Index().SetUnique(true)},
 			{Keys: bsonx.Doc{bsonx.Elem{Key: "name", Value: bsonx.Int32(1)}}},
-			{Keys: bsonx.Doc{bsonx.Elem{Key: "dper", Value: bsonx.Int32(1)}}},
-			{Keys: bsonx.Doc{bsonx.Elem{Key: "dcer", Value: bsonx.Int32(1)}}},
-			{Keys: bsonx.Doc{bsonx.Elem{Key: "create_date", Value: bsonx.Int32(-1)}}},
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "createAt", Value: bsonx.Int32(-1)}}},
 		})
 		if err != nil {
 			log.Println(err)
 		}
 
+		enc, err := d.Auth.CFBEncrypter(initPwd)
+
+		if err != nil {
+			log.Println(err)
+		}
+
+		u := models.NewUser(
+			"furan",
+			string(enc),
+			"ngekaworu@163.com",
+		)
+		// 初始化管理员
+		_, err = t.InsertOne(context.Background(), u)
+		if err != nil {
+			log.Println(err)
+		}
 		// 年报表
 		enterprise := session.Database(mdb).Collection(models.TEnterpriseIndicator)
-		indexView = enterprise.Indexes()
-		_, err = indexView.CreateMany(context.Background(), []mongo.IndexModel{
+		indexes := enterprise.Indexes()
+		_, err = indexes.CreateMany(context.Background(), []mongo.IndexModel{
 			{Keys: bsonx.Doc{bsonx.Elem{Key: "create_date", Value: bsonx.Int32(-1)}}},
 			{Keys: bsonx.Doc{bsonx.Elem{Key: "code", Value: bsonx.Int32(1)}}},
 		})
@@ -109,23 +112,12 @@ func (d *DbEngine) Open(mg, mdb string, initdb bool) error {
 
 		// 当前价值
 		info := session.Database(mdb).Collection(models.TCurrentInfo)
-		indexView = info.Indexes()
-		_, err = indexView.CreateMany(context.Background(), []mongo.IndexModel{
+		indexes = info.Indexes()
+		_, err = indexes.CreateMany(context.Background(), []mongo.IndexModel{
 			{Keys: bsonx.Doc{bsonx.Elem{Key: "create_date", Value: bsonx.Int32(-1)}}},
 			{Keys: bsonx.Doc{bsonx.Elem{Key: "code", Value: bsonx.Int32(1)}}},
 			{Keys: bsonx.Doc{bsonx.Elem{Key: "name", Value: bsonx.Int32(1)}}},
 			{Keys: bsonx.Doc{bsonx.Elem{Key: "classify", Value: bsonx.Int32(1)}}},
-		})
-		if err != nil {
-			log.Println(err)
-		}
-
-		// 权重
-		weight := session.Database(mdb).Collection(stock.TWeight)
-		indexView = weight.Indexes()
-		_, err = indexView.CreateMany(context.Background(), []mongo.IndexModel{
-			{Keys: bsonx.Doc{bsonx.Elem{Key: "create_date", Value: bsonx.Int32(-1)}}},
-			{Keys: bsonx.Doc{bsonx.Elem{Key: "name", Value: bsonx.Int32(1)}}},
 		})
 		if err != nil {
 			log.Println(err)
