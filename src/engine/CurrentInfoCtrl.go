@@ -9,7 +9,6 @@ import (
 	"reflect"
 	"strings"
 	"time"
-	"unsafe"
 
 	"github.com/NgeKaworu/stock/src/models"
 	"github.com/NgeKaworu/stock/src/resultor"
@@ -46,15 +45,17 @@ func (d *DbEngine) FetchCurrent(w http.ResponseWriter, r *http.Request, ps httpr
 			// 股票名称、今日开盘价、昨日收盘价、当前价格、今日最高价、今日最低价、竞买价、竞卖价、成交股数、成交金额、买1手、买1报价、买2手、买2报价、…、买5报价、…、卖5报价、日期、时间
 			strArr := strings.Split(string(body), ",")
 
-			ci := models.CurrentInfo{}
+			ci := &models.CurrentInfo{}
 
 			st := reflect.ValueOf(ci).Elem()
 			for k, v := range strArr[:len(strArr)-3] {
 				if k == 0 {
-					st.Field(k).SetPointer(unsafe.Pointer(&strings.Split(v, "\"")[1]))
+					st.Field(k).Set(reflect.ValueOf(&strings.Split(v, "\"")[1]))
 					continue
 				}
-				st.Field(k).SetPointer(unsafe.Pointer(&v))
+				// 创建临时变量来接指针
+				value := v
+				st.Field(k).Set(reflect.ValueOf(&value))
 
 			}
 
@@ -88,6 +89,7 @@ func (d *DbEngine) FetchCurrent(w http.ResponseWriter, r *http.Request, ps httpr
 			allMarket = append(allMarket, ci)
 			<-pool
 		}(k, v)
+
 	}
 
 	tCurrentInfo := d.GetColl(models.TCurrentInfo)
