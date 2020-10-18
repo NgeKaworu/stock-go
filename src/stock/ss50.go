@@ -1,4 +1,4 @@
-package constants
+package stock
 
 // Ss50 上证50
 var Ss50 = map[string]string{

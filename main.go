@@ -48,8 +48,8 @@ func main() {
 	// user ctrl
 	router.POST("/login", eng.Login)
 	// 年报
-	router.GET("/annals/list", eng.ListAnnals)
-	router.GET("/annals/fetch", a.JWT(eng.FetchAnnals))
+	router.GET("/enterprise/list", eng.ListEnterprise)
+	router.GET("/enterprise/fetch", a.JWT(eng.FetchEnterprise))
 	// 现值
 	router.GET("/current-info/list/:date", eng.ListCurrent)
 	router.GET("/current-info/fetch", a.JWT(eng.FetchCurrent))
