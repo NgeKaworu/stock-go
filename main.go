@@ -47,6 +47,7 @@ func main() {
 	router := httprouter.New()
 	// user ctrl
 	router.POST("/login", eng.Login)
+	router.GET("/profile", a.JWT(eng.Profile))
 	// 年报
 	router.GET("/enterprise/list", eng.ListEnterprise)
 	router.GET("/enterprise/fetch", a.JWT(eng.FetchEnterprise))

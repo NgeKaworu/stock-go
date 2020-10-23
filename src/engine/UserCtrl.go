@@ -12,6 +12,8 @@ import (
 	"github.com/NgeKaworu/time-mgt-go/src/utils"
 	"github.com/julienschmidt/httprouter"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // Login 登录
@@ -78,4 +80,29 @@ func (d *DbEngine) Login(w http.ResponseWriter, r *http.Request, ps httprouter.P
 
 	resultor.RetOk(w, tk)
 	return
+}
+
+// Profile 获取用户档案
+func (d *DbEngine) Profile(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	uid, err := primitive.ObjectIDFromHex(r.Header.Get("uid"))
+	if err != nil {
+		resultor.RetFail(w, err.Error())
+		return
+	}
+	t := d.GetColl(models.TUser)
+
+	res := t.FindOne(context.Background(), bson.M{"_id": uid}, options.FindOne().SetProjection(bson.M{
+		"pwd": 0,
+	}))
+
+	if res.Err() != nil {
+		resultor.RetFail(w, res.Err().Error())
+		return
+	}
+
+	var u models.User
+
+	res.Decode(&u)
+
+	resultor.RetOk(w, u)
 }
