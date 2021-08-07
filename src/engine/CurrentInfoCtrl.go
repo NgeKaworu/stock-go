@@ -33,7 +33,7 @@ func (d *DbEngine) FetchCurrent(w http.ResponseWriter, r *http.Request, ps httpr
 			ciPar := *s.Bourse + *s.Code
 			ciRes, err := http.Get("http://hq.sinajs.cn/list=" + ciPar)
 			if err != nil {
-				log.Println(err.Error())
+				log.Println(err)
 			}
 			// 中文编码
 			utf8Reader := transform.NewReader(ciRes.Body, simplifiedchinese.GBK.NewDecoder())
@@ -96,7 +96,7 @@ func (d *DbEngine) FetchCurrent(w http.ResponseWriter, r *http.Request, ps httpr
 	_, err := tCurrentInfo.InsertMany(context.Background(), allMarket)
 
 	if err != nil {
-		resultor.RetFail(w, err.Error())
+		resultor.RetFail(w, err)
 		return
 	}
 
@@ -107,14 +107,14 @@ func (d *DbEngine) FetchCurrent(w http.ResponseWriter, r *http.Request, ps httpr
 func (d *DbEngine) ListCurrent(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	date, err := time.Parse(time.RFC3339, ps.ByName("date"))
 	if err != nil {
-		resultor.RetFail(w, err.Error())
+		resultor.RetFail(w, err)
 		return
 	}
 	t := d.GetColl(models.TCurrentInfo)
 	res, err := t.Find(context.Background(), bson.M{"create_date": date})
 
 	if err != nil {
-		resultor.RetFail(w, err.Error())
+		resultor.RetFail(w, err)
 		return
 	}
 
@@ -123,7 +123,7 @@ func (d *DbEngine) ListCurrent(w http.ResponseWriter, r *http.Request, ps httpro
 	err = res.All(context.Background(), &a)
 
 	if err != nil {
-		resultor.RetFail(w, err.Error())
+		resultor.RetFail(w, err)
 		return
 	}
 
@@ -140,13 +140,13 @@ func (d *DbEngine) ListInfoTime(w http.ResponseWriter, r *http.Request, ps httpr
 	tCurrentInfo := d.GetColl(models.TCurrentInfo)
 	re, err := tCurrentInfo.Aggregate(context.Background(), query, options.Aggregate())
 	if err != nil {
-		resultor.RetFail(w, err.Error())
+		resultor.RetFail(w, err)
 	}
 	times := make([]map[string]time.Time, 0)
 	err = re.All(context.Background(), &times)
 
 	if err != nil {
-		resultor.RetFail(w, err.Error())
+		resultor.RetFail(w, err)
 	}
 
 	resultor.RetOk(w, times)

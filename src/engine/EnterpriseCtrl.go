@@ -79,14 +79,14 @@ func (d *DbEngine) FetchEnterprise(w http.ResponseWriter, r *http.Request, ps ht
 	_, err := tEnterpriseIndicator.DeleteMany(context.Background(), bson.M{})
 
 	if err != nil {
-		resultor.RetFail(w, err.Error())
+		resultor.RetFail(w, err)
 		return
 	}
 
 	_, err = tEnterpriseIndicator.InsertMany(context.Background(), allReport)
 
 	if err != nil {
-		resultor.RetFail(w, err.Error())
+		resultor.RetFail(w, err)
 		return
 	}
 
@@ -99,7 +99,7 @@ func (d *DbEngine) ListEnterprise(w http.ResponseWriter, r *http.Request, ps htt
 	res, err := t.Find(context.Background(), bson.M{})
 
 	if err != nil {
-		resultor.RetFail(w, err.Error())
+		resultor.RetFail(w, err)
 		return
 	}
 
@@ -108,7 +108,7 @@ func (d *DbEngine) ListEnterprise(w http.ResponseWriter, r *http.Request, ps htt
 	err = res.All(context.Background(), &a)
 
 	if err != nil {
-		resultor.RetFail(w, err.Error())
+		resultor.RetFail(w, err)
 		return
 	}
 

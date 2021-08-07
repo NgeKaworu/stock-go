@@ -24,36 +24,32 @@ func init() {
 
 func main() {
 	var (
-		addr    = flag.String("l", ":8041", "绑定Host地址")
-		dbinit  = flag.Bool("i", false, "init database flag")
-		mongo   = flag.String("m", "mongodb://localhost:27017", "mongod addr flag")
-		db      = flag.String("db", "stock", "database name")
-		k       = flag.String("k", "f3fa39nui89Wi707", "iv key")
-		initPwd = flag.String("ipwd", "12345678", "init pwd")
+		addr   = flag.String("l", ":8041", "绑定Host地址")
+		dbinit = flag.Bool("i", false, "init database flag")
+		mongo  = flag.String("m", "mongodb://localhost:27017", "mongod addr flag")
+		db     = flag.String("db", "stock", "database name")
+		ucHost = flag.String("uc", "https://api.furan.xyz/user-center", "user center host")
 	)
 	flag.Parse()
 
 	log.SetOutput(os.Stdout)
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 
-	a := auth.NewAuth(*k)
-	eng := engine.NewDbEngine(a)
-	err := eng.Open(*mongo, *db, *dbinit, *initPwd)
+	auth := auth.NewAuth(ucHost)
+	eng := engine.NewDbEngine()
+	err := eng.Open(*mongo, *db, *dbinit)
 
 	if err != nil {
 		log.Println(err.Error())
 	}
 
 	router := httprouter.New()
-	// user ctrl
-	router.POST("/login", eng.Login)
-	router.GET("/profile", a.JWT(eng.Profile))
 	// 年报
 	router.GET("/enterprise/list", eng.ListEnterprise)
-	router.GET("/enterprise/fetch", a.JWT(eng.FetchEnterprise))
+	router.GET("/enterprise/fetch", auth.IsLogin(eng.FetchEnterprise))
 	// 现值
 	router.GET("/current-info/list/:date", eng.ListCurrent)
-	router.GET("/current-info/fetch", a.JWT(eng.FetchCurrent))
+	router.GET("/current-info/fetch", auth.IsLogin(eng.FetchCurrent))
 	// 所有现值时间
 	router.GET("/current-time/list", eng.ListInfoTime)
 
