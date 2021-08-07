@@ -2,12 +2,15 @@ package engine
 
 import (
 	"context"
+	"log"
 	"time"
 
+	"github.com/NgeKaworu/stock/src/models"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"go.mongodb.org/mongo-driver/mongo/writeconcern"
+	"go.mongodb.org/mongo-driver/x/bsonx"
 )
 
 // DbEngine 关系型数据库引擎
@@ -63,19 +66,29 @@ func (d *DbEngine) Open(mg, mdb string, initdb bool) error {
 		}
 		defer session.Disconnect(context.Background())
 
-		// undo
-		// // 记录表
-		// t := session.Database(mdb).Collection(models.TTask)
-		// indexView := t.Indexes()
-		// _, err := indexView.CreateMany(context.Background(), []mongo.IndexModel{
-		// 	{Keys: bsonx.Doc{bsonx.Elem{Key: "uid", Value: bsonx.Int32(1)}}},
-		// 	{Keys: bsonx.Doc{bsonx.Elem{Key: "createAt", Value: bsonx.Int32(-1)}}},
-		// 	{Keys: bsonx.Doc{bsonx.Elem{Key: "updateAt", Value: bsonx.Int32(-1)}}},
-		// })
+		// 年报表
+		enterprise := session.Database(mdb).Collection(models.TEnterpriseIndicator)
+		indexes := enterprise.Indexes()
+		_, err = indexes.CreateMany(context.Background(), []mongo.IndexModel{
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "create_date", Value: bsonx.Int32(-1)}}},
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "code", Value: bsonx.Int32(1)}}},
+		})
+		if err != nil {
+			log.Println(err)
+		}
 
-		// if err != nil {
-		// 	log.Println(err)
-		// }
+		// 当前价值
+		info := session.Database(mdb).Collection(models.TCurrentInfo)
+		indexes = info.Indexes()
+		_, err = indexes.CreateMany(context.Background(), []mongo.IndexModel{
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "create_date", Value: bsonx.Int32(-1)}}},
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "code", Value: bsonx.Int32(1)}}},
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "name", Value: bsonx.Int32(1)}}},
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "classify", Value: bsonx.Int32(1)}}},
+		})
+		if err != nil {
+			log.Println(err)
+		}
 
 	}
 
