@@ -52,6 +52,8 @@ func main() {
 	router.GET("/current-info/fetch", auth.IsLogin(eng.FetchCurrent))
 	// 所有现值时间
 	router.GET("/current-time/list", eng.ListInfoTime)
+	//
+	router.GET("/fetchOne", eng.FetchOne)
 
 	srv := &http.Server{Handler: cors.CORS(router), ErrorLog: nil}
 	srv.Addr = *addr
