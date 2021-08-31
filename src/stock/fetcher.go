@@ -78,6 +78,8 @@ func (s *Stock) FetchCurrentInfor() (*Stock, error) {
 	}
 
 	s.errorCode = bitmask.Toggle(s.errorCode, CUR_ERR)
+	s.Name = s.CurrentInfo.Name
+	s.Classify = s.CurrentInfo.Classify
 	return s, nil
 }
 

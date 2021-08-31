@@ -19,10 +19,12 @@ func (d *DbEngine) FetchOne(w http.ResponseWriter, r *http.Request, ps httproute
 	s, err := s.FetchCurrentInfor()
 	if err != nil {
 		resultor.RetFail(w, err)
+		return
 	}
 	s, err = s.FetchEnterPrise()
 	if err != nil {
 		resultor.RetFail(w, err)
+		return
 	}
 
 	bs, _ := json.Marshal(s)
