@@ -14,19 +14,19 @@ import (
 	"golang.org/x/text/transform"
 )
 
-func (s *Stock) FetchCurrentInfor() (*Stock, error) {
+func (s *Stock) FetchCurrentInfor() error {
 	ciPar := *s.Bourse + *s.Code
 	s.errorCode = bitmask.Toggle(s.errorCode, CUR_ERR)
 
 	ciRes, err := http.Get("http://hq.sinajs.cn/list=" + ciPar)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	// 中文编码
 	utf8Reader := transform.NewReader(ciRes.Body, simplifiedchinese.GBK.NewDecoder())
 	body, err := ioutil.ReadAll(utf8Reader)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	defer ciRes.Body.Close()
@@ -48,12 +48,12 @@ func (s *Stock) FetchCurrentInfor() (*Stock, error) {
 	clsPar := *s.Code + *s.BourseCode
 	clsRes, err := http.Get("https://emh5.eastmoney.com/api/CaoPanBiDu/GetCaoPanBiDuPart2Get?fc=" + clsPar)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	body, err = ioutil.ReadAll(clsRes.Body)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	defer clsRes.Body.Close()
@@ -62,7 +62,7 @@ func (s *Stock) FetchCurrentInfor() (*Stock, error) {
 	err = json.Unmarshal(body, &result)
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if r, ok := result["Result"].(map[string]interface{}); ok {
@@ -80,10 +80,10 @@ func (s *Stock) FetchCurrentInfor() (*Stock, error) {
 	s.errorCode = bitmask.Toggle(s.errorCode, CUR_ERR)
 	s.Name = s.CurrentInfo.Name
 	s.Classify = s.CurrentInfo.Classify
-	return s, nil
+	return nil
 }
 
-func (s *Stock) FetchEnterPrise() (*Stock, error) {
+func (s *Stock) FetchEnterPrise() error {
 	curIndicator := map[string]interface{}{
 		"fc":             *s.Code + *s.BourseCode,
 		"corpType":       "4",
@@ -94,14 +94,14 @@ func (s *Stock) FetchEnterPrise() (*Stock, error) {
 
 	reqBody, err := json.Marshal(curIndicator)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	url := "https://emh5.eastmoney.com/api/CaiWuFenXi/GetZhuYaoZhiBiaoList"
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(reqBody))
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	req.Header.Set("Content-Type", "application/json")
@@ -109,20 +109,20 @@ func (s *Stock) FetchEnterPrise() (*Stock, error) {
 	client := &http.Client{}
 	res, err := client.Do(req)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	body, err := ioutil.ReadAll(res.Body)
 	defer res.Body.Close()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	var result models.MainIndicatorRes
 
 	err = json.Unmarshal(body, &result)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	s.Enterprise = make([]models.Enterprise, 0)
@@ -130,5 +130,5 @@ func (s *Stock) FetchEnterPrise() (*Stock, error) {
 	s.Enterprise = append(s.Enterprise, result.Result.Enterprise...)
 
 	s.errorCode = bitmask.Toggle(s.errorCode, YEAR_ERR)
-	return s, nil
+	return nil
 }

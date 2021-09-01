@@ -16,16 +16,20 @@ func (d *DbEngine) FetchOne(w http.ResponseWriter, r *http.Request, ps httproute
 	for v, k := range stock.Stocks {
 		s = stock.NewStock(v, k)
 	}
-	s, err := s.FetchCurrentInfor()
+	err := s.FetchCurrentInfor()
 	if err != nil {
 		resultor.RetFail(w, err)
 		return
 	}
-	s, err = s.FetchEnterPrise()
+
+	err = s.FetchEnterPrise()
 	if err != nil {
 		resultor.RetFail(w, err)
 		return
 	}
+
+	s.Calc()
+	s.Discount(0.1665)
 
 	bs, _ := json.Marshal(s)
 	var out bytes.Buffer
