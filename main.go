@@ -44,16 +44,9 @@ func main() {
 	}
 
 	router := httprouter.New()
-	// 年报
-	router.GET("/enterprise/list", eng.ListEnterprise)
-	router.GET("/enterprise/fetch", auth.IsLogin(eng.FetchEnterprise))
-	// 现值
-	router.GET("/current-info/list/:date", eng.ListCurrent)
-	router.GET("/current-info/fetch", auth.IsLogin(eng.FetchCurrent))
-	// 所有现值时间
-	router.GET("/current-time/list", eng.ListInfoTime)
-	//
-	router.GET("/fetchOne", eng.FetchOne)
+
+	// 爬+计算所有年报
+	router.GET("/stockCrawlMany", auth.IsLogin(eng.StockCrawlMany))
 
 	srv := &http.Server{Handler: cors.CORS(router), ErrorLog: nil}
 	srv.Addr = *addr

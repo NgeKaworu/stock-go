@@ -57,3 +57,18 @@ func NewStock(code, bourseCode string) *Stock {
 	s.Bourse = &bourse
 	return s
 }
+
+func (s *Stock) Crawl() {
+	err := s.FetchCurrentInfor()
+	if err != nil {
+		return
+	}
+
+	err = s.FetchEnterPrise()
+	if err != nil {
+		return
+	}
+
+	s.Calc()
+	s.Discount(0.1665)
+}
