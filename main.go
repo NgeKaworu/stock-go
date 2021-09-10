@@ -47,6 +47,7 @@ func main() {
 
 	// 爬+计算所有年报
 	router.GET("/stockCrawlMany", auth.IsLogin(eng.StockCrawlMany))
+	router.GET("/stock-list", auth.IsLogin(eng.StockList))
 
 	srv := &http.Server{Handler: cors.CORS(router), ErrorLog: nil}
 	srv.Addr = *addr
