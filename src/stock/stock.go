@@ -32,7 +32,6 @@ type Stock struct {
 	DCE                 float64             `json:"DCE,omitempty" bson:"dce,omitempty"`           //动态现金估值
 	DCER                float64             `json:"DCER,omitempty" bson:"dcer,omitempty"`         //动态现金估值率
 	AAGR                float64             `json:"AAGR,omitempty" bson:"aagr,omitempty"`         //平均年增长率
-	Grade               float64             `json:"grade,omitempty" bson:"grade,omitempty"`       //评分
 	Classify            *string             `json:"classify,omitempty" bson:"classify,omitempty"` //板块
 	Name                *string             `json:"name,omitempty" bson:"name,omitempty"`         //股票名字
 	CreateAt            *time.Time          `json:"createAt" bson:"createAt"`                     // 创建时间
