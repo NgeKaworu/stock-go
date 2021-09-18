@@ -16,6 +16,7 @@ import (
 	"github.com/NgeKaworu/stock/src/cors"
 	"github.com/NgeKaworu/stock/src/engine"
 	"github.com/julienschmidt/httprouter"
+	"github.com/robfig/cron/v3"
 )
 
 func init() {
@@ -43,6 +44,10 @@ func main() {
 		log.Println(err.Error())
 	}
 
+	c := cron.New()
+	c.AddFunc("* * * * * 1-5", func() { eng.StockCrawlManyService() })
+
+	c.Start()
 	router := httprouter.New()
 
 	// 爬+计算所有年报
@@ -73,6 +78,7 @@ func main() {
 			}()
 			<-cleanup
 			eng.Close()
+			c.Stop()
 			fmt.Println("safe exit")
 			cleanupDone <- true
 		}

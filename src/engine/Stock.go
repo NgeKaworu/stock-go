@@ -11,9 +11,19 @@ import (
 	"github.com/NgeKaworu/stock/src/stock"
 	"github.com/julienschmidt/httprouter"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func (d *DbEngine) StockCrawlMany(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	res, err := d.StockCrawlManyService()
+	if err != nil {
+		resultor.RetFail(w, err)
+	}
+
+	resultor.RetOk(w, &res)
+}
+
+func (d *DbEngine) StockCrawlManyService() (*mongo.InsertManyResult, error) {
 
 	allStock := make([]interface{}, 0)
 	pool := make(chan bool, 10)
@@ -38,17 +48,15 @@ func (d *DbEngine) StockCrawlMany(w http.ResponseWriter, r *http.Request, ps htt
 	})
 
 	if err != nil {
-		resultor.RetFail(w, err)
-		return
+		return nil, err
 	}
 
 	res, err := t.InsertMany(context.Background(), allStock)
 	if err != nil {
-		resultor.RetFail(w, err)
-		return
+		return nil, err
 	}
 
-	resultor.RetOk(w, &res)
+	return res, nil
 }
 
 func (d *DbEngine) StockList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
