@@ -45,7 +45,7 @@ func main() {
 	}
 
 	c := cron.New()
-	c.AddFunc("* * * * * 1-5", func() { eng.StockCrawlManyService() })
+	c.AddFunc("0 0 19 ? * MON-FRI", func() { eng.StockCrawlManyService() })
 
 	c.Start()
 	router := httprouter.New()
