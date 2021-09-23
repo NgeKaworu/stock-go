@@ -44,8 +44,8 @@ func main() {
 		log.Println(err.Error())
 	}
 
-	c := cron.New(cron.WithSeconds())
-	c.AddFunc("0 0 19 * * MON-FRI", func() { eng.StockCrawlManyService() })
+	c := cron.New(cron.WithParser(cron.NewParser(cron.Hour | cron.Dow)))
+	c.AddFunc("19 MON-FRI", func() { eng.StockCrawlManyService() })
 
 	go c.Start()
 	router := httprouter.New()
