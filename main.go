@@ -44,10 +44,10 @@ func main() {
 		log.Println(err.Error())
 	}
 
-	c := cron.New()
-	c.AddFunc("0 0 19 ? * MON-FRI", func() { eng.StockCrawlManyService() })
+	c := cron.New(cron.WithSeconds())
+	c.AddFunc("0 0 19 * * MON-FRI", func() { eng.StockCrawlManyService() })
 
-	c.Start()
+	go c.Start()
 	router := httprouter.New()
 
 	// 爬+计算所有年报
