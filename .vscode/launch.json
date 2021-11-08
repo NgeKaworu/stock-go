@@ -15,7 +15,6 @@
         "-l=${env:ADDR}",
         "-m=${env:MONGO}",
         "-db=${env:DB}",
-        "-k=${env:K}",
         "-uc=${env:UC}",
       ],
       "debugAdapter":"legacy"
