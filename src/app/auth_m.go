@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/NgeKaworu/stock/src/resultor"
+	"github.com/julienschmidt/httprouter"
 )
 
 func (app *App) IsLogin(next http.Handler) http.Handler {
@@ -51,4 +52,45 @@ func (app *App) getBearer(r *http.Request) (*string, error) {
 	}
 	auth = auth[7:]
 	return &auth, nil
+}
+
+// perm mid
+func (app *App) CheckPerm(perm string) func(httprouter.Handle) httprouter.Handle {
+	return func(next httprouter.Handle) httprouter.Handle {
+		//权限验证
+		return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+			u := r.Header.Get("uid")
+			k := u + ":perm"
+
+			const (
+				NONEXIST = 0
+				EXIST    = 1
+			)
+
+			e, _ := app.rdb.Exists(context.Background(), k).Result()
+
+			if e == EXIST {
+				if b, _ := app.rdb.SIsMember(context.Background(), k, perm).Result(); b {
+					next(w, r, ps)
+					return
+				}
+				w.WriteHeader(http.StatusForbidden)
+				return
+			}
+
+			if e == NONEXIST {
+				client := &http.Client{}
+				req, _ := http.NewRequest("HEAD", *app.uc+"/check-perm-rpc/"+perm, nil)
+				req.Header.Set("Authorization", r.Header.Get("Authorization"))
+				res, err := client.Do(req)
+
+				if err != nil || res.StatusCode != http.StatusOK {
+					w.WriteHeader(res.StatusCode)
+					return
+				}
+
+				next(w, r, ps)
+			}
+		}
+	}
 }

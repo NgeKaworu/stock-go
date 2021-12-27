@@ -31,7 +31,7 @@ func main() {
 		dbinit = flag.Bool("i", false, "init database flag")
 		mongo  = flag.String("m", "mongodb://localhost:27017", "mongod addr flag")
 		mdb    = flag.String("db", "stock", "database name")
-		ucHost = flag.String("uc", "https://api.furan.xyz/user-center", "user center host")
+		ucHost = flag.String("uc", "http://localhost:8020", "user center host")
 		r      = flag.String("r", "localhost:6379", "rdb addr")
 	)
 	flag.Parse()
@@ -67,7 +67,7 @@ func main() {
 	router := httprouter.New()
 
 	// 爬+计算所有年报
-	router.GET("/stockCrawlMany", app.StockCrawlMany)
+	router.GET("/stockCrawlMany", app.CheckPerm("admin")(app.StockCrawlMany))
 	router.GET("/stock-list", app.StockList)
 
 	srv := &http.Server{Handler: cors.CORS(app.IsLogin(router)), ErrorLog: nil}
