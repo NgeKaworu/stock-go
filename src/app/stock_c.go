@@ -1,4 +1,4 @@
-package engine
+package app
 
 import (
 	"context"
@@ -14,7 +14,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func (d *DbEngine) StockCrawlMany(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (d *App) StockCrawlMany(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	res, err := d.StockCrawlManyService()
 	if err != nil {
 		resultor.RetFail(w, err)
@@ -23,7 +23,7 @@ func (d *DbEngine) StockCrawlMany(w http.ResponseWriter, r *http.Request, ps htt
 	resultor.RetOk(w, &res)
 }
 
-func (d *DbEngine) StockCrawlManyService() (*mongo.InsertManyResult, error) {
+func (d *App) StockCrawlManyService() (*mongo.InsertManyResult, error) {
 
 	allStock := make([]interface{}, 0)
 	pool := make(chan bool, 10)
@@ -42,7 +42,7 @@ func (d *DbEngine) StockCrawlManyService() (*mongo.InsertManyResult, error) {
 
 	}
 
-	t := d.GetColl(stock.TStock)
+	t := d.mongo.GetColl(stock.TStock)
 	_, err := t.DeleteMany(context.Background(), bson.M{
 		"createAt": &format,
 	})
@@ -59,7 +59,7 @@ func (d *DbEngine) StockCrawlManyService() (*mongo.InsertManyResult, error) {
 	return res, nil
 }
 
-func (d *DbEngine) StockList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (d *App) StockList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	dataTime := r.URL.Query().Get("dataTime")
 	times := make([]time.Time, 2)
 
@@ -81,7 +81,7 @@ func (d *DbEngine) StockList(w http.ResponseWriter, r *http.Request, ps httprout
 		},
 	}
 
-	t := d.GetColl(stock.TStock)
+	t := d.mongo.GetColl(stock.TStock)
 
 	c, err := t.Find(context.Background(), &query)
 	if err != nil {

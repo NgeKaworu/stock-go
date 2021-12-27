@@ -12,9 +12,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/NgeKaworu/stock/src/auth"
+	"github.com/NgeKaworu/stock/src/app"
 	"github.com/NgeKaworu/stock/src/cors"
-	"github.com/NgeKaworu/stock/src/engine"
+	"github.com/NgeKaworu/stock/src/db"
+	"github.com/go-redis/redis/v8"
+
 	"github.com/julienschmidt/httprouter"
 	"github.com/robfig/cron/v3"
 )
@@ -25,36 +27,50 @@ func init() {
 
 func main() {
 	var (
-		addr   = flag.String("l", ":8051", "绑定Host地址")
+		addr   = flag.String("l", ":8060", "绑定Host地址")
 		dbinit = flag.Bool("i", false, "init database flag")
 		mongo  = flag.String("m", "mongodb://localhost:27017", "mongod addr flag")
-		db     = flag.String("db", "stock", "database name")
+		mdb    = flag.String("db", "stock", "database name")
 		ucHost = flag.String("uc", "https://api.furan.xyz/user-center", "user center host")
+		r      = flag.String("r", "localhost:6379", "rdb addr")
 	)
 	flag.Parse()
 
 	log.SetOutput(os.Stdout)
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 
-	auth := auth.NewAuth(ucHost)
-	eng := engine.NewDbEngine()
-	err := eng.Open(*mongo, *db, *dbinit)
+	mongoClient := db.NewMongoClient()
+	err := mongoClient.Open(*mongo, *mdb, *dbinit)
+	if err != nil {
+		panic(err)
+	}
+
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     *r,
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
+
+	app := app.New(ucHost, mongoClient, rdb)
+	if err != nil {
+		panic(err)
+	}
 
 	if err != nil {
 		log.Println(err.Error())
 	}
 
 	c := cron.New(cron.WithParser(cron.NewParser(cron.Hour | cron.Dow)))
-	c.AddFunc("19 MON-FRI", func() { eng.StockCrawlManyService() })
+	c.AddFunc("19 MON-FRI", func() { app.StockCrawlManyService() })
 
 	go c.Start()
 	router := httprouter.New()
 
 	// 爬+计算所有年报
-	router.GET("/stockCrawlMany", auth.IsLogin(eng.StockCrawlMany))
-	router.GET("/stock-list", auth.IsLogin(eng.StockList))
+	router.GET("/stockCrawlMany", app.StockCrawlMany)
+	router.GET("/stock-list", app.StockList)
 
-	srv := &http.Server{Handler: cors.CORS(router), ErrorLog: nil}
+	srv := &http.Server{Handler: cors.CORS(app.IsLogin(router)), ErrorLog: nil}
 	srv.Addr = *addr
 
 	go func() {
@@ -77,7 +93,8 @@ func main() {
 				cleanup <- true
 			}()
 			<-cleanup
-			eng.Close()
+			mongoClient.Close()
+			rdb.Close()
 			c.Stop()
 			fmt.Println("safe exit")
 			cleanupDone <- true
