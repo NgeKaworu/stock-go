@@ -53,7 +53,8 @@ func (s *Stock) FetchCurrentInform() error {
 	}
 
 	s.Name = r.Data.Name
-	s.CurrentPrice = r.Data.CurrentPrice
+	cp := *r.Data.CurrentPrice / 100
+	s.CurrentPrice = &cp
 
 	clsPar := *s.Code + *s.BourseCode
 	clsRes, err := http.Get("https://emh5.eastmoney.com/api/CaoPanBiDu/GetCaoPanBiDuPart2Get?fc=" + clsPar)
