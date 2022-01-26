@@ -5,45 +5,55 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"reflect"
-	"strings"
+	"net/url"
 
 	"github.com/NgeKaworu/stock/src/bitmask"
 	"github.com/NgeKaworu/stock/src/models"
-	"golang.org/x/text/encoding/simplifiedchinese"
-	"golang.org/x/text/transform"
 )
 
-func (s *Stock) FetchCurrentInfor() error {
-	ciPar := *s.Bourse + *s.Code
+var BOURSE_CODE_MAP = map[string]string{
+	"01": "01",
+	"02": "02",
+}
+
+func (s *Stock) FetchCurrentInform() error {
 	s.errorCode = bitmask.Toggle(s.errorCode, CUR_ERR)
 
-	ciRes, err := http.Get("http://hq.sinajs.cn/list=" + ciPar)
-	if err != nil {
-		return err
-	}
-	// 中文编码
-	utf8Reader := transform.NewReader(ciRes.Body, simplifiedchinese.GBK.NewDecoder())
-	body, err := ioutil.ReadAll(utf8Reader)
+	u, err := url.Parse("https://push2.eastmoney.com/api/qt/stock/get")
 	if err != nil {
 		return err
 	}
 
-	defer ciRes.Body.Close()
-	// 股票名称、今日开盘价、昨日收盘价、当前价格、今日最高价、今日最低价、竞买价、竞卖价、成交股数、成交金额、买1手、买1报价、买2手、买2报价、…、买5报价、…、卖5报价、日期、时间
-	strArr := strings.Split(string(body), ",")
-	s.CurrentInfo = &models.CurrentInfo{}
-	st := reflect.ValueOf(s.CurrentInfo).Elem()
-	for k, v := range strArr[:len(strArr)-3] {
-		if k == 0 {
-			st.Field(k).Set(reflect.ValueOf(&strings.Split(v, "\"")[1]))
-			continue
-		}
-		// 创建临时变量来接指针
-		value := v
-		st.Field(k).Set(reflect.ValueOf(&value))
+	q := u.Query()
+	q.Add("fields", "f43,f58")
+	q.Add("secid", BOURSE_CODE_MAP[*s.BourseCode]+"."+*s.Code)
 
+	u.RawQuery = q.Encode()
+
+	res, err := http.Get(u.String())
+	if err != nil {
+		return err
 	}
+
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+
+	var r struct {
+		Data *struct {
+			CurrentPrice *float64 `json:"f43,omitempty"`
+			Name         *string  `json:"f58,omitempty"`
+		} `json:"data,omitempty"`
+	}
+
+	err = json.Unmarshal(body, &r)
+	if err != nil {
+		return err
+	}
+
+	s.Name = r.Data.Name
+	s.CurrentPrice = r.Data.CurrentPrice
 
 	clsPar := *s.Code + *s.BourseCode
 	clsRes, err := http.Get("https://emh5.eastmoney.com/api/CaoPanBiDu/GetCaoPanBiDuPart2Get?fc=" + clsPar)
@@ -69,7 +79,7 @@ func (s *Stock) FetchCurrentInfor() error {
 		if tiCaiXiangQingList, ok := r["TiCaiXiangQingList"]; ok {
 			for _, tiCaiXiangQing := range tiCaiXiangQingList.([]interface{}) {
 				if keyWord, ok := tiCaiXiangQing.(map[string]interface{})["KeyWord"].(string); ok {
-					s.CurrentInfo.Classify = &keyWord
+					s.Classify = &keyWord
 					break
 				}
 			}
@@ -78,8 +88,6 @@ func (s *Stock) FetchCurrentInfor() error {
 	}
 
 	s.errorCode = bitmask.Toggle(s.errorCode, CUR_ERR)
-	s.Name = s.CurrentInfo.Name
-	s.Classify = s.CurrentInfo.Classify
 	return nil
 }
 

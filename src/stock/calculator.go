@@ -24,43 +24,34 @@ func (s *Stock) Discount(r float64) {
 
 // CalcPB 计算市净率
 func (s *Stock) CalcPB() {
-	// 股价
-	cp, err := strconv.ParseFloat(*s.CurrentInfo.CurrentPrice, 64)
-	if err != nil {
-		log.Println(err, s.Code, "cp")
-		return
-	}
-	var bps float64
-	// 每股净资产
 
 	if len(s.Enterprise) > 0 {
-		bps, err = strconv.ParseFloat(*s.Enterprise[0].Bps, 64)
+		// 每股净资产
+		bps, err := strconv.ParseFloat(*s.Enterprise[0].Bps, 64)
 		if err != nil || bps == 0 {
 			log.Println(err, s.Code, "bps")
 			return
 		}
-		s.PB = cp / bps
+		s.PB = *s.CurrentPrice / bps
 	}
 
 }
 
 // CalcPE 计算市盈率
 func (s *Stock) CalcPE() {
-	// 股价
-	cp, err := strconv.ParseFloat(*s.CurrentInfo.CurrentPrice, 64)
-	if err != nil || cp == 0 {
-		log.Println(err, s.Code, "cp")
+	if *s.CurrentPrice == 0 {
+		log.Println(s.Code, "*s.CurrentPrice")
 		return
 	}
-	// 每股未分配利润
-	var mgwfplr float64
+
 	if len(s.Enterprise) > 0 {
-		mgwfplr, err = strconv.ParseFloat(*s.Enterprise[0].Mgwfplr, 64)
+		// 每股未分配利润
+		mgwfplr, err := strconv.ParseFloat(*s.Enterprise[0].Mgwfplr, 64)
 		if err != nil {
 			log.Println(err, s.Code, "mgfplr")
 			return
 		}
-		s.PE = mgwfplr / cp
+		s.PE = mgwfplr / *s.CurrentPrice
 	}
 
 }
@@ -140,19 +131,19 @@ func (s *Stock) CalcDPE(r float64) {
 
 // CalcDPER 估值 现值比
 func (s *Stock) CalcDPER() {
-	cp, err := strconv.ParseFloat(*s.CurrentInfo.CurrentPrice, 64)
-	if err != nil || cp == 0 {
-		log.Println(err, s.Code, "dper")
+
+	if *s.CurrentPrice == 0 {
+		log.Println(s.Code, "dper")
 		return
 	}
 
-	s.DPER = s.DPE / cp
+	s.DPER = s.DPE / *s.CurrentPrice
 }
 
 // CalcDCE 计算动态现金估值
 func (s *Stock) CalcDCE(r float64) {
-	// 每股经营现金流(元)
 	if len(s.Enterprise) > 0 {
+		// 每股经营现金流(元)
 		mgjyxjje, err := strconv.ParseFloat(*s.Enterprise[0].Mgjyxjje, 64)
 		if err != nil {
 			log.Println(err, s.Code, "mgjyxjje")
@@ -165,11 +156,10 @@ func (s *Stock) CalcDCE(r float64) {
 
 // CalcDCER 估值 现值比
 func (s *Stock) CalcDCER() {
-	cp, err := strconv.ParseFloat(*s.CurrentInfo.CurrentPrice, 64)
-	if err != nil || cp == 0 {
-		log.Println(err, s.Code, "dcer")
+	if *s.CurrentPrice == 0 {
+		log.Println(s.Code, "dcer")
 		return
 	}
 
-	s.DCER = s.DCE / cp
+	s.DCER = s.DCE / *s.CurrentPrice
 }
