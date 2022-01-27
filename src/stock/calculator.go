@@ -29,7 +29,7 @@ func (s *Stock) CalcPB() {
 		// 每股净资产
 		bps, err := strconv.ParseFloat(*s.Enterprise[0].Bps, 64)
 		if err != nil || bps == 0 {
-			log.Println(err, s.Code, "bps")
+			log.Println(err, *s.Code, *s.Name, "bps")
 			return
 		}
 		s.PB = *s.CurrentPrice / bps
@@ -40,7 +40,7 @@ func (s *Stock) CalcPB() {
 // CalcPE 计算市盈率
 func (s *Stock) CalcPE() {
 	if *s.CurrentPrice == 0 {
-		log.Println(s.Code, "*s.CurrentPrice")
+		log.Println(*s.Code, *s.Name, "*s.CurrentPrice")
 		return
 	}
 
@@ -48,7 +48,7 @@ func (s *Stock) CalcPE() {
 		// 每股未分配利润
 		mgwfplr, err := strconv.ParseFloat(*s.Enterprise[0].Mgwfplr, 64)
 		if err != nil {
-			log.Println(err, s.Code, "mgfplr")
+			log.Println(err, *s.Code, *s.Name, "mgfplr")
 			return
 		}
 		s.PE = mgwfplr / *s.CurrentPrice
@@ -69,13 +69,13 @@ func (s *Stock) CalcAAGR() {
 		}
 		lastBps, err := strconv.ParseFloat(*enterpriseList[n].Bps, 64)
 		if err != nil || lastBps == 0 {
-			log.Println(err, s.Code)
+			log.Println(err, *s.Code, *s.Name, "lastBps")
 			continue
 		}
 		Bps, err := strconv.ParseFloat(*v.Bps, 64)
 
 		if err != nil {
-			log.Println(err, s.Code)
+			log.Println(err, *s.Code, *s.Name, "Bps")
 			continue
 		}
 
@@ -102,13 +102,13 @@ func (s *Stock) CalcROE() {
 	if len(s.Enterprise) > 0 {
 		mgwfplr, err = strconv.ParseFloat(*s.Enterprise[0].Mgwfplr, 64)
 		if err != nil {
-			log.Println(err, s.Code, "mgwfplr")
+			log.Println(err, *s.Code, *s.Name, "mgwfplr")
 			return
 		}
 		// 每股未分配利润
 		bps, err = strconv.ParseFloat(*s.Enterprise[0].Bps, 64)
 		if err != nil || bps == 0 {
-			log.Println(err, s.Code, "bps")
+			log.Println(err, *s.Code, *s.Name, "bps")
 			return
 		}
 		s.ROE = mgwfplr / bps
@@ -122,7 +122,7 @@ func (s *Stock) CalcDPE(r float64) {
 
 		bps, err := strconv.ParseFloat(*s.Enterprise[0].Bps, 64)
 		if err != nil {
-			log.Println(err, s.Code, "bps")
+			log.Println(err, *s.Code, *s.Name, "bps")
 			return
 		}
 		s.DPE = bps / (r - s.AAGR)
@@ -133,7 +133,7 @@ func (s *Stock) CalcDPE(r float64) {
 func (s *Stock) CalcDPER() {
 
 	if *s.CurrentPrice == 0 {
-		log.Println(s.Code, "dper")
+		log.Println(*s.Code, *s.Name, "dper")
 		return
 	}
 
@@ -146,7 +146,7 @@ func (s *Stock) CalcDCE(r float64) {
 		// 每股经营现金流(元)
 		mgjyxjje, err := strconv.ParseFloat(*s.Enterprise[0].Mgjyxjje, 64)
 		if err != nil {
-			log.Println(err, s.Code, "mgjyxjje")
+			log.Println(err, *s.Code, *s.Name, "mgjyxjje")
 			return
 		}
 		s.DCE = mgjyxjje / (r - s.AAGR)
@@ -157,7 +157,7 @@ func (s *Stock) CalcDCE(r float64) {
 // CalcDCER 估值 现值比
 func (s *Stock) CalcDCER() {
 	if *s.CurrentPrice == 0 {
-		log.Println(s.Code, "dcer")
+		log.Println(*s.Code, *s.Name, "dcer")
 		return
 	}
 

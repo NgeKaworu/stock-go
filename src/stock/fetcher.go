@@ -12,8 +12,8 @@ import (
 )
 
 var BOURSE_CODE_MAP = map[string]string{
-	"01": "01",
-	"02": "02",
+	"01": "1",
+	"02": "0",
 }
 
 func (s *Stock) FetchCurrentInform() error {
@@ -35,6 +35,7 @@ func (s *Stock) FetchCurrentInform() error {
 		return err
 	}
 
+	defer res.Body.Close()
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return err
