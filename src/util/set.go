@@ -1,4 +1,4 @@
-package utils
+package util
 
 // Union 交集
 func Union(slice1, slice2 []string) []string {

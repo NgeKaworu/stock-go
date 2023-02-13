@@ -1,3 +1,13 @@
+/*
+ * @Author: fuRan NgeKaworu@gmail.com
+ * @Date: 2020-11-14 11:06:01
+ * @LastEditors: fuRan NgeKaworu@gmail.com
+ * @LastEditTime: 2023-02-13 21:00:58
+ * @FilePath: /stock/stock-go/src/db/mongo.go
+ * @Description:
+ *
+ * Copyright (c) 2023 by ${git_name_email}, All Rights Reserved.
+ */
 package db
 
 import (
@@ -5,7 +15,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/NgeKaworu/stock/src/stock"
+	"github.com/NgeKaworu/stock/src/model"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -67,7 +77,7 @@ func (d *MongoClient) Open(mg, mdb string, initdb bool) error {
 		defer session.Disconnect(context.Background())
 
 		// 每股数据
-		stock := session.Database(mdb).Collection(stock.TStock)
+		stock := session.Database(mdb).Collection(model.TStock)
 		indexes := stock.Indexes()
 		_, err = indexes.CreateMany(context.Background(), []mongo.IndexModel{
 			{Keys: bsonx.Doc{bsonx.Elem{Key: "classify", Value: bsonx.Int32(-1)}}},

@@ -1,4 +1,14 @@
-package exchange
+/*
+ * @Author: fuRan NgeKaworu@gmail.com
+ * @Date: 2023-01-30 15:19:17
+ * @LastEditors: fuRan NgeKaworu@gmail.com
+ * @LastEditTime: 2023-02-13 20:50:48
+ * @FilePath: /stock/stock-go/src/model/exchange.go
+ * @Description:
+ *
+ * Copyright (c) 2023 by ${git_name_email}, All Rights Reserved.
+ */
+package model
 
 import (
 	"time"
@@ -6,6 +16,8 @@ import (
 	"github.com/NgeKaworu/stock/src/bitmask"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
+
+var TExchange = "t_exchange"
 
 // Exchange 交易记录
 type Exchange struct {

@@ -2,13 +2,13 @@
  * @Author: fuRan NgeKaworu@gmail.com
  * @Date: 2021-08-30 13:24:40
  * @LastEditors: fuRan NgeKaworu@gmail.com
- * @LastEditTime: 2023-01-30 15:25:28
- * @FilePath: /stock/stock-go/src/stock/errorcode.go
+ * @LastEditTime: 2023-02-13 20:49:49
+ * @FilePath: /stock/stock-go/src/util/errorcode.go
  * @Description:
  *
  * Copyright (c) 2023 by ${git_name_email}, All Rights Reserved.
  */
-package stock
+package util
 
 import "github.com/NgeKaworu/stock/src/bitmask"
 

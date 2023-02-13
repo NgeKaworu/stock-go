@@ -15,6 +15,7 @@ import (
 	"github.com/NgeKaworu/stock/src/app"
 	"github.com/NgeKaworu/stock/src/cors"
 	"github.com/NgeKaworu/stock/src/db"
+	"github.com/NgeKaworu/stock/src/util"
 	"github.com/go-redis/redis/v8"
 
 	"github.com/julienschmidt/httprouter"
@@ -31,7 +32,8 @@ func main() {
 		dbinit = flag.Bool("i", false, "init database flag")
 		mongo  = flag.String("m", "mongodb://localhost:27017", "mongod addr flag")
 		mdb    = flag.String("db", "stock", "database name")
-		ucHost = flag.String("uc", "http://localhost:8020", "user center host")
+		// ucHost = flag.String("uc", "http://localhost:8020", "user center host")
+		ucHost = flag.String("uc", "https://api.furan.xyz/user-center", "user center host")
 		r      = flag.String("r", "localhost:6379", "rdb addr")
 	)
 	flag.Parse()
@@ -51,7 +53,10 @@ func main() {
 		DB:       0,  // use default DB
 	})
 
-	app := app.New(ucHost, mongoClient, rdb)
+	validate := util.NewValidator()
+	trans := util.NewValidatorTranslator(validate)
+
+	app := app.New(validate, trans, ucHost, mongoClient, rdb)
 	if err != nil {
 		panic(err)
 	}

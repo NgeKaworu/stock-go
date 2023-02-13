@@ -1,4 +1,4 @@
-package stock
+package model
 
 import (
 	"bytes"
@@ -8,7 +8,7 @@ import (
 	"net/url"
 
 	"github.com/NgeKaworu/stock/src/bitmask"
-	"github.com/NgeKaworu/stock/src/models"
+	"github.com/NgeKaworu/stock/src/util"
 )
 
 var BOURSE_CODE_MAP = map[string]string{
@@ -17,7 +17,7 @@ var BOURSE_CODE_MAP = map[string]string{
 }
 
 func (s *Stock) FetchCurrentInform() error {
-	s.errorCode = bitmask.Toggle(s.errorCode, CUR_ERR)
+	s.errorCode = bitmask.Toggle(s.errorCode, util.CUR_ERR)
 
 	u, err := url.Parse("https://push2.eastmoney.com/api/qt/stock/get")
 	if err != nil {
@@ -89,7 +89,7 @@ func (s *Stock) FetchCurrentInform() error {
 
 	}
 
-	s.errorCode = bitmask.Toggle(s.errorCode, CUR_ERR)
+	s.errorCode = bitmask.Toggle(s.errorCode, util.CUR_ERR)
 	return nil
 }
 
@@ -100,7 +100,7 @@ func (s *Stock) FetchEnterPrise() error {
 		"latestCount":    12,
 		"reportDateType": 0,
 	}
-	s.errorCode = bitmask.Toggle(s.errorCode, YEAR_ERR)
+	s.errorCode = bitmask.Toggle(s.errorCode, util.YEAR_ERR)
 
 	reqBody, err := json.Marshal(curIndicator)
 	if err != nil {
@@ -128,17 +128,17 @@ func (s *Stock) FetchEnterPrise() error {
 		return err
 	}
 
-	var result models.MainIndicatorRes
+	var result MainIndicatorRes
 
 	err = json.Unmarshal(body, &result)
 	if err != nil {
 		return err
 	}
 
-	s.Enterprise = make([]models.Enterprise, 0)
+	s.Enterprise = make([]Enterprise, 0)
 
 	s.Enterprise = append(s.Enterprise, result.Result.Enterprise...)
 
-	s.errorCode = bitmask.Toggle(s.errorCode, YEAR_ERR)
+	s.errorCode = bitmask.Toggle(s.errorCode, util.YEAR_ERR)
 	return nil
 }

@@ -1,4 +1,4 @@
-package stock
+package model
 
 // Hs300 沪深300
 var Hs300 = map[string]string{

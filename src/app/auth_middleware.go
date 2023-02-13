@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/NgeKaworu/stock/src/resultor"
+	"github.com/NgeKaworu/stock/src/util"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -18,7 +18,7 @@ func (app *App) IsLogin(next http.Handler) http.Handler {
 		if err != nil {
 			w.Header().Set("WWW-Authenticate", "Bearer realm=Restricted")
 			w.WriteHeader(http.StatusUnauthorized)
-			resultor.RetFail(w, err)
+			util.RetFail(w, err)
 			return
 		}
 

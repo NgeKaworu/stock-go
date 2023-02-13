@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/NgeKaworu/stock/src/resultor"
-	"github.com/NgeKaworu/stock/src/stock"
+	"github.com/NgeKaworu/stock/src/model"
+	"github.com/NgeKaworu/stock/src/util"
 	"github.com/julienschmidt/httprouter"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -17,10 +17,10 @@ import (
 func (d *App) StockCrawlMany(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	res, err := d.StockCrawlManyService()
 	if err != nil {
-		resultor.RetFail(w, err)
+		util.RetFail(w, err)
 	}
 
-	resultor.RetOk(w, &res)
+	util.RetOk(w, &res)
 }
 
 func (d *App) StockCrawlManyService() (*mongo.InsertManyResult, error) {
@@ -30,10 +30,10 @@ func (d *App) StockCrawlManyService() (*mongo.InsertManyResult, error) {
 	now := time.Now().Local()
 	format, _ := time.Parse("2006-01-02 15:03:05", now.Format("2006-01-02 00:00:00"))
 
-	for k, v := range stock.Stocks {
+	for k, v := range model.Stocks {
 		pool <- true
 		go func(key, val string) {
-			s := stock.NewStock(key, val)
+			s := model.NewStock(key, val)
 			s.CreateAt = &format
 			s.Crawl()
 			allStock = append(allStock, s)
@@ -42,7 +42,7 @@ func (d *App) StockCrawlManyService() (*mongo.InsertManyResult, error) {
 
 	}
 
-	t := d.mongo.GetColl(stock.TStock)
+	t := d.mongo.GetColl(model.TStock)
 	_, err := t.DeleteMany(context.Background(), bson.M{
 		"createAt": &format,
 	})
@@ -65,12 +65,12 @@ func (d *App) StockList(w http.ResponseWriter, r *http.Request, ps httprouter.Pa
 
 	err := json.Unmarshal([]byte(dataTime), &times)
 	if err != nil {
-		resultor.RetFail(w, err)
+		util.RetFail(w, err)
 		return
 	}
 
 	if len(times) != 2 {
-		resultor.RetFail(w, errors.New("dataTime must a range"))
+		util.RetFail(w, errors.New("dataTime must a range"))
 		return
 	}
 
@@ -81,21 +81,21 @@ func (d *App) StockList(w http.ResponseWriter, r *http.Request, ps httprouter.Pa
 		},
 	}
 
-	t := d.mongo.GetColl(stock.TStock)
+	t := d.mongo.GetColl(model.TStock)
 
 	c, err := t.Find(context.Background(), &query)
 	if err != nil {
-		resultor.RetFail(w, err)
+		util.RetFail(w, err)
 		return
 	}
 
-	res := make([]*stock.Stock, 0)
+	res := make([]*model.Stock, 0)
 	err = c.All(context.Background(), &res)
 
 	if err != nil {
-		resultor.RetFail(w, err)
+		util.RetFail(w, err)
 		return
 	}
 
-	resultor.RetOkWithTotal(w, res, int64(len(res)))
+	util.RetOkWithTotal(w, res, int64(len(res)))
 }

@@ -1,4 +1,14 @@
-package stock
+/*
+ * @Author: fuRan NgeKaworu@gmail.com
+ * @Date: 2020-11-14 11:06:01
+ * @LastEditors: fuRan NgeKaworu@gmail.com
+ * @LastEditTime: 2023-02-13 20:55:34
+ * @FilePath: /stock/stock-go/src/model/stock_ss50.go
+ * @Description:
+ *
+ * Copyright (c) 2023 by ${git_name_email}, All Rights Reserved.
+ */
+package model
 
 // Ss50 上证50
 var Ss50 = map[string]string{
