@@ -2,7 +2,7 @@
  * @Author: fuRan NgeKaworu@gmail.com
  * @Date: 2021-08-30 13:24:40
  * @LastEditors: fuRan NgeKaworu@gmail.com
- * @LastEditTime: 2023-02-13 20:49:49
+ * @LastEditTime: 2023-02-18 19:39:00
  * @FilePath: /stock/stock-go/src/util/errorcode.go
  * @Description:
  *
@@ -15,6 +15,4 @@ import "github.com/NgeKaworu/stock/src/bitmask"
 const (
 	YEAR_ERR bitmask.Bits = 1 << iota
 	CUR_ERR
-	EXC_ERR
-	POS_ERR
 )

@@ -23,6 +23,7 @@ require (
 	github.com/go-redis/redis/v8 v8.11.4
 	github.com/go-stack/stack v1.8.1 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
+	github.com/hetiansu5/urlquery v1.2.7
 	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect

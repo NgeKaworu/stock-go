@@ -75,6 +75,15 @@ func main() {
 	router.GET("/stockCrawlMany", app.CheckPerm("admin")(app.StockCrawlMany))
 	router.GET("/stock-list", app.StockList)
 
+	router.GET("/exchange/:code", app.ExchangeList)
+	router.POST("/exchange", app.ExchangeUpsert)
+	router.PATCH("/exchange/:id", app.ExchangeUpsert)
+	router.DELETE("/exchange/:id", app.ExchangeDelete)
+
+	router.GET("/position", app.Position)
+	router.GET("/position/:code", app.Position)
+	router.PATCH("/position/:code", app.PositionUpsert)
+
 	srv := &http.Server{Handler: cors.CORS(app.IsLogin(router)), ErrorLog: nil}
 	srv.Addr = *addr
 

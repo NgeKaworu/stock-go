@@ -2,7 +2,7 @@
  * @Author: fuRan NgeKaworu@gmail.com
  * @Date: 2020-11-14 11:06:01
  * @LastEditors: fuRan NgeKaworu@gmail.com
- * @LastEditTime: 2023-02-13 21:00:58
+ * @LastEditTime: 2023-02-19 20:18:05
  * @FilePath: /stock/stock-go/src/db/mongo.go
  * @Description:
  *
@@ -79,11 +79,35 @@ func (d *MongoClient) Open(mg, mdb string, initdb bool) error {
 		// 每股数据
 		stock := session.Database(mdb).Collection(model.TStock)
 		indexes := stock.Indexes()
+		// undo 刷索引
 		_, err = indexes.CreateMany(context.Background(), []mongo.IndexModel{
 			{Keys: bsonx.Doc{bsonx.Elem{Key: "classify", Value: bsonx.Int32(-1)}}},
 			{Keys: bsonx.Doc{bsonx.Elem{Key: "name", Value: bsonx.Int32(1)}}},
 			{Keys: bsonx.Doc{bsonx.Elem{Key: "createAt", Value: bsonx.Int32(1)}}},
-			{Keys: bsonx.Doc{bsonx.Elem{Key: "code", Value: bsonx.Int32(1)}}},
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "bourseCode", Value: bsonx.Int32(1)}}},
+		})
+		if err != nil {
+			log.Println(err)
+		}
+
+		// 持仓
+		position := session.Database(mdb).Collection(model.TPosition)
+		indexes = position.Indexes()
+		// undo 刷索引
+		_, err = indexes.CreateMany(context.Background(), []mongo.IndexModel{
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "createAt", Value: bsonx.Int32(1)}}},
+		})
+		if err != nil {
+			log.Println(err)
+		}
+
+		// 交易
+		exchange := session.Database(mdb).Collection(model.TExchange)
+		indexes = exchange.Indexes()
+		// undo 刷索引
+		_, err = indexes.CreateMany(context.Background(), []mongo.IndexModel{
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "code", Value: bsonx.Int32(-1)}}},
+			{Keys: bsonx.Doc{bsonx.Elem{Key: "createAt", Value: bsonx.Int32(1)}}},
 		})
 		if err != nil {
 			log.Println(err)
