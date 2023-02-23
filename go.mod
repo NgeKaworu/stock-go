@@ -6,12 +6,12 @@ require (
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/robfig/cron/v3 v3.0.1
 	go.mongodb.org/mongo-driver v1.7.4
-	golang.org/x/text v0.3.7
 )
 
 require (
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
+	golang.org/x/text v0.3.8 // indirect
 )
 
 require (
