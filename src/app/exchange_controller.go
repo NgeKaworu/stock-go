@@ -2,7 +2,7 @@
  * @Author: fuRan NgeKaworu@gmail.com
  * @Date: 2023-01-30 18:05:33
  * @LastEditors: fuRan NgeKaworu@gmail.com
- * @LastEditTime: 2023-02-19 21:50:16
+ * @LastEditTime: 2023-02-26 15:22:31
  * @FilePath: /stock/stock-go/src/app/exchange_controller.go
  * @Description:
  *
@@ -61,7 +61,8 @@ func (app *App) ExchangeList(w http.ResponseWriter, r *http.Request, ps httprout
 		filter,
 		options.Find().
 			SetLimit(query.Limit).
-			SetSkip(query.Skip),
+			SetSkip(query.Skip).
+			SetSort(bson.M{"createAt": -1}),
 	)
 
 	if err != nil {
@@ -126,6 +127,8 @@ func (app *App) ExchangeUpsert(w http.ResponseWriter, r *http.Request, ps httpro
 	if pos.Code == nil {
 		pos.Code = exchange.Code
 		pos.CreateAt.Time = now
+		pos.StopLoss = -30
+		pos.StopProfit = 15
 	}
 
 	pos.UpdateAt.Time = now
@@ -139,7 +142,7 @@ func (app *App) ExchangeUpsert(w http.ResponseWriter, r *http.Request, ps httpro
 	if !isEdit {
 		log.Println("creat exchange")
 		pos.TotalShare += exchange.CurrentShare
-		pos.TotalCapital += exchange.TransactionPrice
+		pos.TotalCapital += exchange.TransactionPrice * exchange.CurrentShare
 		pos.TotalDividend += exchange.CurrentDividend
 
 		exchange.UpdateAt.Time = now
@@ -165,7 +168,7 @@ func (app *App) ExchangeUpsert(w http.ResponseWriter, r *http.Request, ps httpro
 		}
 
 		pos.TotalShare += exchange.CurrentShare - old.CurrentShare
-		pos.TotalCapital += exchange.TransactionPrice - old.TransactionPrice
+		pos.TotalCapital += exchange.TransactionPrice*exchange.CurrentShare - old.TransactionPrice*old.CurrentShare
 		pos.TotalDividend += exchange.CurrentDividend - old.CurrentDividend
 	}
 
@@ -216,7 +219,7 @@ func (app *App) ExchangeDelete(w http.ResponseWriter, r *http.Request, ps httpro
 	pos.UpdateAt.Time = time.Now().Local()
 
 	pos.TotalShare -= exchange.CurrentShare
-	pos.TotalCapital -= exchange.TransactionPrice
+	pos.TotalCapital -= exchange.TransactionPrice * exchange.CurrentShare
 	pos.TotalDividend -= exchange.CurrentDividend
 
 	if _, err = tExchange.DeleteOne(context.Background(), bson.M{"_id": exchange.ID}); err != nil {
